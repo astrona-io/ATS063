@@ -1,5 +1,3 @@
 # Introduction
 
-This introduction is planned. It will cover the welcome, machine preparation,
-and how this course is made. The technical course will begin with the first
-objective of this exam domain. Content authoring has not started.
+This introduction explains the Argo Events course, reading method and author review. The domain represents 12% of Certified Argo Project Associate (CAPA) and belongs to ATP012. Read the welcome, requirements and authoring explanation before the technical sections.
