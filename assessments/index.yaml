@@ -1,0 +1,13 @@
+schema_version: 1
+course_id: ATS063
+status: draft
+banks:
+- id: ats063-domain-review
+  path: assessments/domain-review.yaml
+  question_count: 6
+  placement:
+    position: after
+    reading: sections/section-020/module-01/course-02-summary.md
+  covered_sections:
+  - section-010
+  - section-020

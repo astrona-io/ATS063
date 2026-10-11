@@ -1,8 +1,9 @@
-# Preparation scaffold. Technical pages stay draft until authoring and review.
+# Reading-only content; YAML knowledge checks have a separate index.
 training:
   id: ATS063
   title: 'CAPA: Argo Events'
-  description: Preparation scaffold for Argo Events. Lessons and environments are planned.
+  description: 'Detailed reading material and reusable YAML knowledge checks for CAPA: Argo Events. Technical
+    content remains draft. No labs or playgrounds.'
   certification:
     name: Certified Argo Project Associate
     code: CAPA
@@ -15,7 +16,7 @@ training:
 modules:
 - id: module-intro
   title: Introduction
-  description: Planned introduction and authoring status.
+  description: Audience, reading method and review process.
   content:
   - type: reading
     title: Introduction
@@ -31,21 +32,35 @@ modules:
     path: sections/intro/course-03-how-this-course-is-made.md
 - id: module-010
   title: Understand Argo Events Fundamentals
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Understand Argo Events Fundamentals.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-010/README.md
   - type: reading
     title: Understand Argo Events Fundamentals
+    path: sections/section-010/README.md
+  - type: reading
+    title: Event-Driven Triggers And Safe Repeated Actions
     path: sections/section-010/module-01/course.md
+  - type: reading
+    title: Event-Driven Triggers And Safe Repeated Actions
+    path: sections/section-010/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+  - type: reading
+    title: Summary
+    path: sections/section-010/module-01/course-02-summary.md
 - id: module-020
   title: Understand Argo Event Components and Architecture
-  description: Planned coverage of this curriculum objective.
+  description: Developed reading and reasoning for Understand Argo Event Components and Architecture.
+  draft: true
   content:
   - type: reading
-    title: Section Overview
+    title: Understand Argo Event Components and Architecture
     path: sections/section-020/README.md
   - type: reading
-    title: Understand Argo Event Components and Architecture
+    title: EventSource, EventBus And Sensor Architecture
     path: sections/section-020/module-01/course.md
+  - type: reading
+    title: EventSource, EventBus And Sensor Architecture
+    path: sections/section-020/module-01/course-01-eventsource-eventbus-and-sensor-architecture.md
+  - type: reading
+    title: Summary
+    path: sections/section-020/module-01/course-02-summary.md
