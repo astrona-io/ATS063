@@ -1,0 +1,61 @@
+version: 1
+approval: CAPA requested 2026-10-11; established reading-only scope
+course:
+  id: ATS063
+  certification:
+    name: Certified Argo Project Associate
+    code: CAPA
+    provider: CNCF / Linux Foundation
+    domain: Argo Events
+    weight: 12
+    competencies:
+    - Understand Argo Events Fundamentals
+    - Understand Argo Event Components and Architecture
+defaults:
+  playground: false
+  module_lab: false
+  capstone: false
+  section_quiz: false
+  final_quiz: true
+assessment_format: YAML question banks v1, registered in assessments/index.yaml
+sections:
+- id: section-010
+  title: Understand Argo Events Fundamentals
+  curriculum_item: Understand Argo Events Fundamentals
+  capstone: false
+  section_quiz: false
+  modules:
+  - id: module-01
+    title: Event-Driven Triggers And Safe Repeated Actions
+    objectives:
+    - Explain why external events can initiate Kubernetes work.
+    - Distinguish event ingestion from task execution.
+    - Define dependency filters and trigger input mapping.
+    - Evaluate authentication, retries and idempotent side effects.
+    outline:
+    - Event-Driven Triggers And Safe Repeated Actions
+    playground: false
+    module_lab: false
+    sources:
+    - reading: sections/section-010/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+      adapted_from: null
+- id: section-020
+  title: Understand Argo Event Components and Architecture
+  curriculum_item: Understand Argo Event Components and Architecture
+  capstone: false
+  section_quiz: false
+  modules:
+  - id: module-01
+    title: EventSource, EventBus And Sensor Architecture
+    objectives:
+    - Assign ingestion, transport and dependency evaluation responsibilities.
+    - Explain event envelopes and dependency names.
+    - Distinguish controller resources from their active Pods and services.
+    - Diagnose source, bus, Sensor and trigger failures separately.
+    outline:
+    - EventSource, EventBus And Sensor Architecture
+    playground: false
+    module_lab: false
+    sources:
+    - reading: sections/section-020/module-01/course-01-eventsource-eventbus-and-sensor-architecture.md
+      adapted_from: null

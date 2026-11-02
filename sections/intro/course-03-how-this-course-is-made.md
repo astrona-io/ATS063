@@ -1,9 +1,9 @@
 # How This Course Is Made
 
-Paris Nakita Kejser at Astrona.io maintains this course. Technical content and
-environments will be written, checked and reviewed during content authoring.
+Authors map sections to the official Certified Argo Project Associate (CAPA) objectives and check mechanisms against primary documentation. They review examples for responsible components, prerequisites and meaningful failure cases.
 
-The initial repository contains the curriculum outline and placeholders.
-Contributors are listed on the [contributors page](https://github.com/astrona-io/ATS063/graphs/contributors).
-Report mistakes on the [issues page](https://github.com/astrona-io/ATS063/issues).
-The course uses the [Apache-2.0 license](https://github.com/astrona-io/ATS063/blob/main/LICENSE).
+Structural checks verify reading order, section introductions, closing summaries, draft metadata and YAML question contracts. No runtime execution or laboratory validation is claimed.
+
+The [contributors](https://github.com/astrona-io/ATS063/graphs/contributors) maintain the material. To [report a mistake](https://github.com/astrona-io/ATS063/issues), identify the page and disputed statement. The [license](https://github.com/astrona-io/ATS063/blob/main/LICENSE) governs reuse.
+
+Objectives belong to their respective owners. Teaching and knowledge checks are original practice material. Application names are illustrative and have no special technical meaning.

@@ -1,0 +1,129 @@
+schema_version: 1
+kind: question_bank
+id: ats063-domain-review
+course_id: ATS063
+exam_code: CAPA
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: domain
+  id: domain-review
+  title: Argo Events
+placement:
+  position: after
+  reading: sections/section-020/module-01/course-02-summary.md
+questions:
+- id: ats063-domain-review-q01
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain why external events can initiate Kubernetes work.
+  source_readings:
+  - sections/section-010/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+  prompt: What does Argo Events chiefly coordinate?
+  options:
+  - id: a
+    text: Every application's database replication.
+    explanation: That is a separate data contract.
+  - id: b
+    text: Every Prometheus scrape.
+    explanation: Collection is not its central trigger role.
+  - id: c
+    text: Events and configured trigger actions.
+    explanation: It connects occurrence to automation.
+  correct_option: c
+  explanation: It connects occurrence to automation.
+- id: ats063-domain-review-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish event ingestion from task execution.
+  source_readings:
+  - sections/section-010/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+  prompt: Does event ingestion prove the resulting Workflow succeeded?
+  options:
+  - id: a
+    text: Yes; filters rewrite every task to succeed.
+    explanation: Filters select rather than guarantee business results.
+  - id: b
+    text: No; triggering and execution are later stages.
+    explanation: Each needs its own outcome evidence.
+  - id: c
+    text: Yes; every event directly becomes valid output.
+    explanation: Processing can fail.
+  correct_option: b
+  explanation: Each needs its own outcome evidence.
+- id: ats063-domain-review-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Evaluate authentication, retries and idempotent side effects.
+  source_readings:
+  - sections/section-010/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
+  prompt: Why design triggers for safe repetition?
+  options:
+  - id: a
+    text: Delivery and retries can duplicate actions.
+    explanation: Business idempotency needs deliberate handling.
+  - id: b
+    text: All event systems provide universal exactly-once effects.
+    explanation: That guarantee cannot be assumed.
+  - id: c
+    text: Every duplicate event is automatically harmless.
+    explanation: Repeated side effects can matter.
+  correct_option: a
+  explanation: Business idempotency needs deliberate handling.
+- id: ats063-domain-review-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Assign ingestion, transport and dependency evaluation responsibilities.
+  source_readings:
+  - sections/section-020/module-01/course-01-eventsource-eventbus-and-sensor-architecture.md
+  prompt: Which component evaluates configured event dependencies?
+  options:
+  - id: a
+    text: Only the EventBus storage backend.
+    explanation: Transport does not define all dependency logic.
+  - id: b
+    text: Only the triggered application container.
+    explanation: That runs after triggering.
+  - id: c
+    text: Sensor.
+    explanation: It decides when trigger conditions are met.
+  correct_option: c
+  explanation: It decides when trigger conditions are met.
+- id: ats063-domain-review-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain event envelopes and dependency names.
+  source_readings:
+  - sections/section-020/module-01/course-01-eventsource-eventbus-and-sensor-architecture.md
+  prompt: What is the EventBus's central role?
+  options:
+  - id: a
+    text: Granting every event source cluster-admin.
+    explanation: Permissions must remain scoped.
+  - id: b
+    text: Transporting events through its supported backend.
+    explanation: It connects ingestion with consumers.
+  - id: c
+    text: Automatically implementing all workflow templates.
+    explanation: Definitions are separate.
+  correct_option: b
+  explanation: It connects ingestion with consumers.
+- id: ats063-domain-review-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Diagnose source, bus, Sensor and trigger failures separately.
+  source_readings:
+  - sections/section-020/module-01/course-01-eventsource-eventbus-and-sensor-architecture.md
+  prompt: Why trace all components for a missing action?
+  options:
+  - id: a
+    text: A failure can occur before ingestion, during transport, in matching or at the target API.
+    explanation: One healthy stage does not establish the whole path.
+  - id: b
+    text: Every failure must be a broken task image.
+    explanation: The task may never have been created.
+  - id: c
+    text: A bus status alone proves business processing.
+    explanation: Transport status is scoped evidence.
+  correct_option: a
+  explanation: One healthy stage does not establish the whole path.
