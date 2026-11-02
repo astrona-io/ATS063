@@ -32,7 +32,7 @@ modules:
 - id: module-010
   title: Understand Argo Events Fundamentals
   description: Developed reading and reasoning for Understand Argo Events Fundamentals.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Understand Argo Events Fundamentals
@@ -71,7 +71,7 @@ modules:
   title: Understand Argo Event Components and Architecture
   description: Developed reading and reasoning for Understand Argo Event Components
     and Architecture.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Understand Argo Event Components and Architecture
