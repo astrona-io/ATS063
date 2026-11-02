@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: probe-code
+  namespace: starfleet
+data:
+  app.py: "import http.server,json,time,threading,urllib.parse,uuid\nlock=threading.Lock();\
+    \ counts={\"200\":0,\"500\":0}; durations=[]; queue=3; last=time.time(); hooks=[]\n\
+    class Handler(http.server.BaseHTTPRequestHandler):\n def log_message(self,*args):\
+    \ pass\n def do_POST(self):\n  payload=self.rfile.read(int(self.headers.get('Content-Length','0')))\n\
+    \  hooks.append(json.loads(payload)); self.send_response(200);self.end_headers();self.wfile.write(b'ok')\n\
+    \ def do_GET(self):\n  global queue,last\n  path=urllib.parse.urlparse(self.path);args=urllib.parse.parse_qs(path.query)\n\
+    \  if path.path=='/work':\n   code=args.get('status',['200'])[0];code=code if\
+    \ code in counts else '200';delay=min(float(args.get('delay',['0.01'])[0]),0.1);started=time.perf_counter();time.sleep(delay);duration=time.perf_counter()-started\n\
+    \   with lock:\n    counts[code]+=1;durations.append(duration);completed=time.time()\n\
+    \    if code=='200':last=completed\n   request_id=str(uuid.uuid4()); trace=self.headers.get('traceparent','none')\n\
+    \   print(json.dumps({'event':'request_completed','request_id':request_id,'status':int(code),'duration_seconds':duration,'traceparent':trace,'timestamp':completed}),flush=True)\n\
+    \   self.send_response(int(code));self.end_headers();self.wfile.write(json.dumps({'request_id':request_id,'traceparent':trace,'status':int(code)}).encode());return\n\
+    \  if path.path=='/hooks':text=json.dumps(hooks)\n  elif path.path=='/metrics':\n\
+    \   with lock:\n    text='# HELP lab_requests_total Completed requests\\n# TYPE\
+    \ lab_requests_total counter\\n'+''.join('lab_requests_total{service=\"probe\"\
+    ,status=\"%s\"} %s\\n'%(k,v) for k,v in counts.items())\n    text+='# HELP lab_queue_depth\
+    \ Current queued items\\n# TYPE lab_queue_depth gauge\\nlab_queue_depth %s\\n'%queue\n\
+    \    text+='# HELP lab_last_success_timestamp_seconds Last observed completion\\\
+    n# TYPE lab_last_success_timestamp_seconds gauge\\nlab_last_success_timestamp_seconds\
+    \ %s\\n'%last\n    text+='# HELP lab_request_duration_seconds Request duration\\\
+    n# TYPE lab_request_duration_seconds histogram\\n'\n    for bound in [0.01,0.05,0.1,float('inf')]:text+='lab_request_duration_seconds_bucket{le=\"\
+    %s\"} %s\\n'%('+Inf' if bound==float('inf') else bound,sum(d<=bound for d in durations))\n\
+    \    text+='lab_request_duration_seconds_sum %s\\nlab_request_duration_seconds_count\
+    \ %s\\n'%(sum(durations),len(durations))\n  else:text='probe-ready\\n'\n  self.send_response(200);self.end_headers();self.wfile.write(text.encode())\n\
+    http.server.ThreadingHTTPServer(('0.0.0.0',8080),Handler).serve_forever()\n"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe
+  namespace: starfleet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: probe
+  template:
+    metadata:
+      labels:
+        app: probe
+    spec:
+      containers:
+      - name: probe
+        image: docker.io/library/python:3.13-alpine
+        ports:
+        - containerPort: 8080
+        command:
+        - python
+        - -u
+        - /code/app.py
+        volumeMounts:
+        - name: code
+          mountPath: /code
+      volumes:
+      - name: code
+        configMap:
+          name: probe-code
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: probe
+  namespace: starfleet
+spec:
+  selector:
+    app: probe
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shuttle
+  namespace: starfleet
+spec:
+  restartPolicy: Never
+  containers:
+  - name: reader
+    image: docker.io/library/python:3.13-alpine
+    command:
+    - python
+    - -c
+    - import time; time.sleep(86400)
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: drifter
+  namespace: outpost
+spec:
+  restartPolicy: Never
+  containers:
+  - name: reader
+    image: docker.io/library/python:3.13-alpine
+    command:
+    - python
+    - -c
+    - import time; time.sleep(86400)
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workflow-runner
+  namespace: starfleet
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: workflow-runner
+  namespace: starfleet
+rules:
+- apiGroups:
+  - argoproj.io
+  resources:
+  - workflowtaskresults
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: workflow-runner
+  namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: workflow-runner
+subjects:
+- kind: ServiceAccount
+  name: workflow-runner
+  namespace: starfleet
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-minio-cred
+  namespace: starfleet
+stringData:
+  accesskey: admin
+  secretkey: password
