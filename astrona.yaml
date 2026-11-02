@@ -1,9 +1,8 @@
-# Reading-only content; YAML knowledge checks have a separate index.
 training:
   id: ATS063
   title: 'CAPA: Argo Events'
-  description: 'Detailed reading material and reusable YAML knowledge checks for CAPA: Argo Events. Technical
-    content remains draft. No labs or playgrounds.'
+  description: 'Detailed reading material and reusable YAML knowledge checks for CAPA:
+    Argo Events. Technical content remains draft. Private playgrounds and draft independent labs are included.'
   certification:
     name: Certified Argo Project Associate
     code: CAPA
@@ -33,7 +32,7 @@ modules:
 - id: module-010
   title: Understand Argo Events Fundamentals
   description: Developed reading and reasoning for Understand Argo Events Fundamentals.
-  draft: true
+  status: alpha
   content:
   - type: reading
     title: Understand Argo Events Fundamentals
@@ -45,12 +44,34 @@ modules:
     title: Event-Driven Triggers And Safe Repeated Actions
     path: sections/section-010/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
   - type: reading
+    title: Trigger A Workflow From An Event — Task
+    path: sections/section-010/module-01/labs/lab-01/question.md
+  - type: lab
+    title: Trigger A Workflow From An Event
+    path: sections/section-010/module-01/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: argo-events
+    task_kind: build
+    learning_goals:
+    - Deliver a webhook event and execute a Workflow using its data.
+    tags:
+    - capa
+    - argo-events
+  - type: reading
+    title: Trigger A Workflow From An Event — Solution
+    path: sections/section-010/module-01/labs/lab-01/solution.md
+  - type: reading
+    title: 'Guided Practice: Trigger A Workflow From An Event'
+    path: sections/section-010/module-01/course-02-guided-practice.md
+  - type: reading
     title: Summary
-    path: sections/section-010/module-01/course-02-summary.md
+    path: sections/section-010/module-01/course-03-summary.md
 - id: module-020
   title: Understand Argo Event Components and Architecture
-  description: Developed reading and reasoning for Understand Argo Event Components and Architecture.
-  draft: true
+  description: Developed reading and reasoning for Understand Argo Event Components
+    and Architecture.
+  status: alpha
   content:
   - type: reading
     title: Understand Argo Event Components and Architecture
@@ -62,5 +83,26 @@ modules:
     title: EventSource, EventBus And Sensor Architecture
     path: sections/section-020/module-01/course-01-eventsource-eventbus-and-sensor-architecture.md
   - type: reading
+    title: Connect EventSource EventBus And Sensor — Task
+    path: sections/section-020/module-01/labs/lab-01/question.md
+  - type: lab
+    title: Connect EventSource EventBus And Sensor
+    path: sections/section-020/module-01/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: argo-events
+    task_kind: build
+    learning_goals:
+    - Deliver a webhook event and execute a Workflow using its data.
+    tags:
+    - capa
+    - argo-events
+  - type: reading
+    title: Connect EventSource EventBus And Sensor — Solution
+    path: sections/section-020/module-01/labs/lab-01/solution.md
+  - type: reading
+    title: 'Guided Practice: Connect EventSource EventBus And Sensor'
+    path: sections/section-020/module-01/course-02-guided-practice.md
+  - type: reading
     title: Summary
-    path: sections/section-020/module-01/course-02-summary.md
+    path: sections/section-020/module-01/course-03-summary.md
