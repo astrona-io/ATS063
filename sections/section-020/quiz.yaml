@@ -360,3 +360,311 @@ questions:
     correct_option: b
     explanation: Change spec.replicas on the EventSource or Sensor instead. The documentation
       says not to scale the generated Deployment manually.
+  - id: ats063-020-q13
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Test a service account with can-i"
+    source_readings:
+    - sections/section-020/module-05/course-01-permissions-of-the-components.md
+    prompt: "Which command tests whether the service account `event-trigger` in `starfleet` may create Workflows?"
+    options:
+    - id: a
+      text: "`kubectl get workflows --as event-trigger`"
+      explanation: "This lists Workflows and uses a user name, not the service account form."
+    - id: b
+      text: "`kubectl auth can-i create workflows.argoproj.io -n starfleet --as=system:serviceaccount:starfleet:event-trigger`"
+      explanation: "Correct. It prints yes or no for that identity."
+    - id: c
+      text: "`kubectl describe serviceaccount event-trigger`"
+      explanation: "This shows the account, not what it may do."
+    - id: d
+      text: "`kubectl top serviceaccount event-trigger`"
+      explanation: "There is no such command."
+    correct_option: b
+    explanation: "A service account is written as system:serviceaccount:<namespace>:<name> in the --as flag."
+  - id: ats063-020-q14
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Recognize a missing permission on a Sensor"
+    source_readings:
+    - sections/section-020/module-05/course-01-permissions-of-the-components.md
+    prompt: "A Sensor has no `serviceAccountName`, and its target is a Workflow. The Sensor is `Deployed` and its pod is `Running`. What do you see after an event?"
+    options:
+    - id: a
+      text: "The pod restarts in a loop."
+      explanation: "The pod runs normally. Only the trigger fails."
+    - id: b
+      text: "A `Forbidden` error in the log of the Sensor pod for the service account `default`."
+      explanation: "Correct. The trigger runs with the identity of the pod and the API server refuses it."
+    - id: c
+      text: "An error in the log of the EventSource."
+      explanation: "The EventSource has already published the event."
+    - id: d
+      text: "A failed condition on the EventBus."
+      explanation: "The bus delivered the event."
+    correct_option: b
+    explanation: "The error names the identity, the verb and the resource, which is what you need to write the missing rule."
+  - id: ats063-020-q15
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Know which identity runs a trigger"
+    source_readings:
+    - sections/section-020/module-05/course-01-permissions-of-the-components.md
+    prompt: "Which identity does a Kubernetes trigger use to create its object?"
+    options:
+    - id: a
+      text: "The service account of the controller."
+      explanation: "The controller builds the pods and does not run triggers."
+    - id: b
+      text: "The service account of the Sensor pod."
+      explanation: "Correct. The trigger runs inside the Sensor pod."
+    - id: c
+      text: "The service account of the EventSource pod."
+      explanation: "The EventSource only publishes events."
+    - id: d
+      text: "The user who applied the Sensor."
+      explanation: "The pod does not act as the user."
+    correct_option: b
+    explanation: "The identity is set in spec.template.serviceAccountName, or it is default when the field is empty."
+  - id: ats063-020-q16
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Set the log level of a component"
+    source_readings:
+    - sections/section-020/module-05/course-02-metrics-and-logs.md
+    prompt: "How do you set the log level of an EventSource pod to debug?"
+    options:
+    - id: a
+      text: "Set the environment variable `LOG_LEVEL` in the container of `spec.template`."
+      explanation: "Correct. The controller replaces the pod with the new setting."
+    - id: b
+      text: "Run `kubectl logs --level=debug`."
+      explanation: "The logs command has no level flag."
+    - id: c
+      text: "Add a label `debug: \"true\"` to the pod."
+      explanation: "Labels do not change logging."
+    - id: d
+      text: "Edit the ConfigMap of the EventBus."
+      explanation: "The bus configuration does not set the log level of an EventSource."
+    correct_option: a
+    explanation: "The log level is an environment variable of the container, and a change replaces the pod."
+  - id: ats063-020-q17
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read the metrics of the controller"
+    source_readings:
+    - sections/section-020/module-05/course-02-metrics-and-logs.md
+    prompt: "On which port and path does the controller serve its Prometheus metrics?"
+    options:
+    - id: a
+      text: "Port 7777, path `/metrics`."
+      explanation: "Correct. Print the page from a pod in the cluster to see the names of your version."
+    - id: b
+      text: "Port 12000, path `/events`."
+      explanation: "Port 12000 is the example port of a webhook in this course."
+    - id: c
+      text: "Port 4222, path `/stats`."
+      explanation: "Port 4222 is the client port of the EventBus."
+    - id: d
+      text: "Port 443, path `/healthz`."
+      explanation: "This is not the metrics endpoint."
+    correct_option: a
+    explanation: "Confirm metric names against the page of your version before building a dashboard."
+  - id: ats063-020-q18
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Select the pods of an object for logs"
+    source_readings:
+    - sections/section-020/module-05/course-02-metrics-and-logs.md
+    prompt: "Which command reads the logs of all pods of the Sensor `fleet`?"
+    options:
+    - id: a
+      text: "`kubectl -n starfleet logs -l sensor-name=fleet`"
+      explanation: "Correct. The controller labels the pods with sensor-name."
+    - id: b
+      text: "`kubectl -n starfleet logs sensor/fleet`"
+      explanation: "A Sensor is not a pod and has no log."
+    - id: c
+      text: "`kubectl -n argo-events logs -l sensor-name=fleet`"
+      explanation: "The pods are in the namespace of the Sensor."
+    - id: d
+      text: "`kubectl -n starfleet logs eventbus/default`"
+      explanation: "That reads the bus, not the Sensor."
+    correct_option: a
+    explanation: "Use the labels eventsource-name and sensor-name to select the pods that the controller built."
+  - id: ats063-020-q19
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Know that a NetworkPolicy needs enforcement"
+    source_readings:
+    - sections/section-020/module-05/course-03-limiting-network-access.md
+    prompt: "A NetworkPolicy that blocks other namespaces is applied, and a request from another namespace still succeeds. What is the likely reason?"
+    options:
+    - id: a
+      text: "The EventSource ignores policies."
+      explanation: "Policies act on the network, not on the EventSource."
+    - id: b
+      text: "The network plugin of the cluster does not enforce NetworkPolicy."
+      explanation: "Correct. The API server accepts the object even when nothing enforces it."
+    - id: c
+      text: "The policy needs the label `eventsource-name` on the Service."
+      explanation: "The policy selects pods, not Services."
+    - id: d
+      text: "The controller removed the policy."
+      explanation: "The controller does not manage your policies."
+    correct_option: b
+    explanation: "Test a policy with a request that must fail before you rely on it."
+  - id: ats063-020-q20
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "List what a restricted EventSource pod needs"
+    source_readings:
+    - sections/section-020/module-05/course-03-limiting-network-access.md
+    prompt: "You add an egress policy to the pods of an EventSource. Which destinations must it still allow?"
+    options:
+    - id: a
+      text: "Only the sender of the events."
+      explanation: "The pod receives from senders. It does not connect to them."
+    - id: b
+      text: "The EventBus on port 4222, DNS, and the broker for an outgoing type."
+      explanation: "Correct. Without the bus it cannot publish, and without DNS it cannot resolve names."
+    - id: c
+      text: "Only the Kubernetes API server."
+      explanation: "A Sensor needs the API server for triggers. An EventSource needs the bus."
+    - id: d
+      text: "No destination. Egress is not used by an EventSource."
+      explanation: "The pod connects out to the bus."
+    correct_option: b
+    explanation: "A policy with an egress type denies everything it does not list."
+  - id: ats063-020-q21
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read the status of an EventSource with a missing bus"
+    source_readings:
+    - sections/section-020/module-05/course-04-finding-the-failing-component.md
+    prompt: "An EventSource sets `eventBusName: main`, and only the bus `default` exists. What do you see?"
+    options:
+    - id: a
+      text: "A running pod that retries the connection."
+      explanation: "The controller does not create the pod without the bus."
+    - id: b
+      text: "`Deployed` is not true, the status names a missing bus, and the EventSource has no pod."
+      explanation: "Correct. The reason is EventBusNotFound."
+    - id: c
+      text: "The pod uses the bus `default` instead."
+      explanation: "The controller does not fall back to another bus."
+    - id: d
+      text: "The API server refuses the object."
+      explanation: "The spec is valid. The bus is missing."
+    correct_option: b
+    explanation: "Remove the field to use the bus default, or create the bus that the name refers to."
+  - id: ats063-020-q22
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Locate a wrong event name"
+    source_readings:
+    - sections/section-020/module-05/course-04-finding-the-failing-component.md
+    prompt: "The EventSource log shows an event, the Sensor log shows nothing, and no error appears. Which fault fits?"
+    options:
+    - id: a
+      text: "The Sensor has no service account."
+      explanation: "That would show a Forbidden error after the event arrives."
+    - id: b
+      text: "The dependency names a different `eventName` than the EventSource event."
+      explanation: "Correct. A dependency matches on the EventSource name and the event name together."
+    - id: c
+      text: "The Workflow image does not exist."
+      explanation: "That happens after the trigger, and the Sensor would log the trigger."
+    - id: d
+      text: "The controller is not running."
+      explanation: "The pods are running and the EventSource published the event."
+    correct_option: b
+    explanation: "Follow the event from the sender to the Workflow and stop at the first step that shows no line."
+  - id: ats063-020-q23
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read a bus fault from the claims"
+    source_readings:
+    - sections/section-020/module-01/course-04-troubleshooting-the-bus.md
+    prompt: "The pod `eventbus-broken-js-0` stays `Pending`. What shows the reason?"
+    options:
+    - id: a
+      text: "The log of the pod."
+      explanation: "A Pending pod has not started and has no log."
+    - id: b
+      text: "The events of the pod and its claim, from `kubectl describe`."
+      explanation: "Correct. They name the missing storage class or the unbound claim."
+    - id: c
+      text: "The conditions of the EventBus, which always show the cause."
+      explanation: "The conditions show what the controller did, not whether the pods are ready."
+    - id: d
+      text: "The log of the EventSource."
+      explanation: "The EventSource only reports its own connection."
+    correct_option: b
+    explanation: "Check the EventBus status, the StatefulSet, the pods and claims, and then the events of the pod."
+  - id: ats063-020-q24
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Combine filter types"
+    source_readings:
+    - sections/section-020/module-02/course-04-expression-script-and-time-filters.md
+    prompt: "A dependency has an expression filter and a time filter. How are they combined by default, and how do you change it?"
+    options:
+    - id: a
+      text: "With `or`, and `filtersLogicalOperator: and` changes it."
+      explanation: "The default is and."
+    - id: b
+      text: "With `and`, and `filtersLogicalOperator: or` on the dependency changes it."
+      explanation: "Correct. With or, an event passes when one filter type passes."
+    - id: c
+      text: "They are combined with `and` and cannot be changed."
+      explanation: "The operator can be changed on the dependency."
+    - id: d
+      text: "Only the first filter type is used."
+      explanation: "All configured types are used."
+    correct_option: b
+    explanation: "Every filter sees one event only, and the time filter uses UTC."
+  - id: ats063-020-q25
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Chain pipelines with the HTTP trigger"
+    source_readings:
+    - sections/section-020/module-03/course-04-chaining-pipelines-with-the-http-trigger.md
+    prompt: "An HTTP trigger calls the Service of a webhook EventSource, which starts a second pipeline. When is the first request answered?"
+    options:
+    - id: a
+      text: "When the second pipeline has finished."
+      explanation: "The pipelines are not tied together in time."
+    - id: b
+      text: "When the first EventSource accepts it."
+      explanation: "Correct. The second pipeline runs after that."
+    - id: c
+      text: "When the second Sensor has run its trigger."
+      explanation: "The first request does not wait for the second Sensor."
+    - id: d
+      text: "When the EventBus acknowledges both events."
+      explanation: "The answer is sent before the bus is involved for the second pipeline."
+    correct_option: b
+    explanation: "Use policy.status when a refused request must count as a failed trigger."
+  - id: ats063-020-q26
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Know the namespace limits of a dependency"
+    source_readings:
+    - sections/section-020/module-04/course-04-one-controller-many-namespaces.md
+    prompt: "A Sensor in `outpost` must react to an EventSource in `starfleet`. Why does it not work?"
+    options:
+    - id: a
+      text: "The controller serves only one namespace."
+      explanation: "One controller serves every namespace in the cluster installation."
+    - id: b
+      text: "A dependency and `eventBusName` have no namespace field, so a Sensor never reaches an EventSource in another namespace."
+      explanation: "Correct. Each namespace owns its own bus, EventSources and Sensors."
+    - id: c
+      text: "Sensors must be in `argo-events`."
+      explanation: "Sensors run in the namespace of their own pipeline."
+    - id: d
+      text: "The Sensor needs a ClusterRole to read events."
+      explanation: "Events come over the bus, not through the API."
+    correct_option: b
+    explanation: "Requests from another namespace reach an EventSource through <service>.<namespace>.svc, not through a Sensor dependency."

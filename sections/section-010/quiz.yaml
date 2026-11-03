@@ -347,3 +347,289 @@ questions:
     correct_option: b
     explanation: The trigger runs in the Sensor pod with the identity of the Sensor
       service account. A refusal shows up there, and the sender never sees it.
+  - id: ats063-010-q13
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Sort EventSource types into the groups by how events reach the pod"
+    source_readings:
+    - sections/section-010/module-04/course-01-the-eventsource-catalogue.md
+    prompt: "Which EventSource type needs no Service, because its pod opens the connection to a broker itself?"
+    options:
+    - id: a
+      text: "The webhook type."
+      explanation: "The webhook type receives HTTP requests and needs a Service so that senders can reach the pod."
+    - id: b
+      text: "The NATS type."
+      explanation: "Correct. A subscription type connects out to the broker and receives its messages over that connection."
+    - id: c
+      text: "The GitHub type."
+      explanation: "The GitHub type receives webhook calls from GitHub and needs an address that GitHub can reach."
+    - id: d
+      text: "The Slack type."
+      explanation: "The Slack type receives HTTP requests from Slack and needs a route from outside."
+    correct_option: b
+    explanation: "Pushed types receive requests and need a Service and a route. Subscription types such as NATS connect out to a broker, so they need no Service."
+  - id: ats063-010-q14
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the fields of a NATS event"
+    source_readings:
+    - sections/section-010/module-04/course-02-receiving-messages-from-nats.md
+    prompt: "A NATS EventSource receives messages that contain JSON, and a Sensor must read the key `ship` from the body. Which setting of the NATS event makes this possible?"
+    options:
+    - id: a
+      text: "`subject: ship`"
+      explanation: "The subject names the channel to subscribe to. It does not change how the body is carried."
+    - id: b
+      text: "`jsonBody: true`"
+      explanation: "Correct. With this setting the body is embedded as JSON, so a path such as `body.ship` works."
+    - id: c
+      text: "`connectionBackoff: true`"
+      explanation: "The backoff settings control how the pod retries the connection. They do not affect the body."
+    - id: d
+      text: "`url: nats://ship`"
+      explanation: "The url names the NATS server. It does not decide how the body is carried."
+    correct_option: b
+    explanation: "The setting jsonBody belongs to the event next to url and subject. Without it the Sensor cannot address fields of the message."
+  - id: ats063-010-q15
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain what a plain NATS subscription does not guarantee"
+    source_readings:
+    - sections/section-010/module-04/course-02-receiving-messages-from-nats.md
+    prompt: "The pod of a NATS EventSource is down for one minute, and a publisher sends ten messages on the subject during that minute. What happens to those messages?"
+    options:
+    - id: a
+      text: "They are stored by NATS and delivered when the pod returns."
+      explanation: "A plain NATS subject is not durable, so the server does not store messages for a subscriber that is not connected."
+    - id: b
+      text: "They are lost, because a plain NATS subject is not durable."
+      explanation: "Correct. Only subscribers that are connected when a message is published receive it."
+    - id: c
+      text: "They are stored in the EventBus and replayed to the Sensor."
+      explanation: "The EventBus holds only events that the EventSource published, and the pod received none of these."
+    - id: d
+      text: "They are refused by the controller, which stops the publisher."
+      explanation: "The controller does not handle messages and has no link to the publisher."
+    correct_option: b
+    explanation: "A subscription type receives only what is published while it is connected. Use a durable system when messages must not be lost."
+  - id: ats063-010-q16
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Choose the high availability model for each group of EventSource types"
+    source_readings:
+    - sections/section-010/module-04/course-04-several-types-in-one-eventsource.md
+    prompt: "A NATS EventSource runs with `replicas: 2`. How do the two pods behave?"
+    options:
+    - id: a
+      text: "Both pods receive every message and publish it, so each message is published twice."
+      explanation: "The controller avoids this for subscription types by electing one active pod."
+    - id: b
+      text: "One pod is active and the other waits, because the type is active-passive."
+      explanation: "Correct. One elected pod serves, and the other takes over if the first stops."
+    - id: c
+      text: "The pods split the messages between them by subject."
+      explanation: "Subscription types do not split messages between pods in this way."
+    - id: d
+      text: "The second pod is refused by the validating webhook."
+      explanation: "Replicas are allowed for every type. The behavior differs by group."
+    correct_option: b
+    explanation: "Subscription, watching and generating types run one active pod with standby pods. Pushed types can run several active pods."
+  - id: ats063-010-q17
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Describe how an SQS EventSource receives messages"
+    source_readings:
+    - sections/section-010/module-04/course-03-source-control-and-cloud-eventsources.md
+    prompt: "What network access does an SQS EventSource need?"
+    options:
+    - id: a
+      text: "A public address, so that AWS can call the pod."
+      explanation: "That describes the SNS type, which receives calls. The SQS type polls."
+    - id: b
+      text: "Outbound access to the queue only, because the pod polls the queue."
+      explanation: "Correct. No inbound route is needed."
+    - id: c
+      text: "A LoadBalancer Service on port 443."
+      explanation: "Only types that receive requests need a route from the sender."
+    - id: d
+      text: "Access to the Kubernetes API of AWS."
+      explanation: "The pod talks to the queue, not to a cluster API."
+    correct_option: b
+    explanation: "The SQS type polls a queue, so it needs outbound access and credentials. The SNS and GitHub types register a webhook and need a public address."
+  - id: ats063-010-q18
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Stop forged requests on a GitHub EventSource"
+    source_readings:
+    - sections/section-010/module-04/course-03-source-control-and-cloud-eventsources.md
+    prompt: "A GitHub EventSource is reachable from the internet. What stops someone else from sending a forged event to it?"
+    options:
+    - id: a
+      text: "The name of the EventSource in the URL."
+      explanation: "The path is not a secret and anyone who learns it can call it."
+    - id: b
+      text: "A `webhookSecret` that references a key of a Secret, used to check the signature."
+      explanation: "Correct. Requests without a valid signature are refused."
+    - id: c
+      text: "The label `eventsource-name` on the pod."
+      explanation: "Labels select pods. They do not authenticate requests."
+    - id: d
+      text: "The EventBus, which rejects events from unknown senders."
+      explanation: "The bus does not know who sent the original request."
+    correct_option: b
+    explanation: "Signature checks such as webhookSecret or validateSignature prove that the sender holds the shared secret."
+  - id: ats063-010-q19
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Reference credentials from a Secret"
+    source_readings:
+    - sections/section-010/module-04/course-03-source-control-and-cloud-eventsources.md
+    prompt: "Where does an EventSource read the credentials for a cloud or source control type from?"
+    options:
+    - id: a
+      text: "From a key of a Secret in the namespace of the EventSource."
+      explanation: "Correct. The event holds a reference to the Secret and the key, not the value."
+    - id: b
+      text: "From a literal string in the event."
+      explanation: "Credentials are references, so the value is not stored in the EventSource."
+    - id: c
+      text: "From the EventBus."
+      explanation: "The bus carries events and has no credential store for sources."
+    - id: d
+      text: "From the ConfigMap of the controller."
+      explanation: "The controller configuration does not hold the credentials of your sources."
+    correct_option: a
+    explanation: "Every credential is a Secret reference, so the EventSource object can be stored in Git without the secret value."
+  - id: ats063-010-q20
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Combine several types in one EventSource"
+    source_readings:
+    - sections/section-010/module-04/course-04-several-types-in-one-eventsource.md
+    prompt: "One EventSource has a webhook event named `arrival` and a NATS event named `arrival`. What is wrong?"
+    options:
+    - id: a
+      text: "Nothing. The names only need to be unique inside each type."
+      explanation: "Event names must be unique across the whole EventSource."
+    - id: b
+      text: "The two events share a name, and event names must be unique across all types in the object."
+      explanation: "Correct. A Sensor dependency names the event, so it must identify exactly one."
+    - id: c
+      text: "A webhook and a NATS event can never be in one EventSource."
+      explanation: "Types can share an EventSource. The pod, the service account and the template are shared."
+    - id: d
+      text: "The NATS type must come first."
+      explanation: "The order of the types does not matter."
+    correct_option: b
+    explanation: "Events of several types share one object, so one pod, one service account and one template. Their names must be different."
+  - id: ats063-010-q21
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Notice that a misspelled type is not refused"
+    source_readings:
+    - sections/section-010/module-04/course-01-the-eventsource-catalogue.md
+    prompt: "An EventSource is applied with `spec.natss` instead of `spec.nats`. What happens?"
+    options:
+    - id: a
+      text: "The API server refuses the object."
+      explanation: "The custom resource definition accepts any field under spec."
+    - id: b
+      text: "The object is accepted and has no events, because the name matches no type."
+      explanation: "Correct. No pod serves the events you meant to define."
+    - id: c
+      text: "The controller changes the name to `nats`."
+      explanation: "The controller does not correct names."
+    - id: d
+      text: "The EventSource is deployed with the webhook type."
+      explanation: "There is no default type."
+    correct_option: b
+    explanation: "The custom resource definitions accept unknown fields. Check an EventSource by looking at what it does, not only at what was accepted."
+  - id: ats063-010-q22
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Tell the NATS subject from the subject of the event context"
+    source_readings:
+    - sections/section-010/module-04/course-02-receiving-messages-from-nats.md
+    prompt: "A Sensor reads the `subject` of the event context of a NATS event. What does it hold?"
+    options:
+    - id: a
+      text: "The NATS subject that the message was published to."
+      explanation: "The NATS subject is in the data of the event. The context subject is a different field."
+    - id: b
+      text: "The name of the event in the EventSource."
+      explanation: "Correct. The data holds the NATS subject and the body, and the context subject is the event name."
+    - id: c
+      text: "The name of the Sensor."
+      explanation: "The Sensor name is not part of the context subject."
+    - id: d
+      text: "The name of the EventBus."
+      explanation: "The bus name is not part of the event context."
+    correct_option: b
+    explanation: "The context subject is the event name, and the NATS subject is in the data of the event, so read the correct field."
+  - id: ats063-010-q23
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Place Argo Events among the Argo projects"
+    source_readings:
+    - sections/section-010/module-01/course-04-argo-events-and-the-other-argo-projects.md
+    prompt: "Which project keeps the cluster equal to a Git repository, so that a trigger can create one of its objects?"
+    options:
+    - id: a
+      text: "Argo Workflows"
+      explanation: "Argo Workflows runs jobs as Workflows."
+    - id: b
+      text: "Argo CD"
+      explanation: "Correct. A trigger can create an Application, and Argo CD then syncs it."
+    - id: c
+      text: "Argo Rollouts"
+      explanation: "Argo Rollouts delivers new versions in steps."
+    - id: d
+      text: "Argo Events"
+      explanation: "Argo Events turns outside changes into objects. It does not sync Git."
+    correct_option: b
+    explanation: "Argo Events creates ordinary Kubernetes objects. Which project acts on the object depends on its kind."
+  - id: ats063-010-q24
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Serve a webhook over TLS"
+    source_readings:
+    - sections/section-010/module-02/course-04-encrypting-webhook-traffic-with-tls.md
+    prompt: "A webhook event sets only `serverCertSecret`. What is the result?"
+    options:
+    - id: a
+      text: "It serves HTTPS with a generated key."
+      explanation: "Both the certificate and the key are required."
+    - id: b
+      text: "It does not serve HTTPS, because both `serverCertSecret` and `serverKeySecret` are needed."
+      explanation: "Correct. The event needs both fields to serve HTTPS."
+    - id: c
+      text: "It serves HTTP on a second port."
+      explanation: "There is no second port."
+    - id: d
+      text: "It is refused by the controller."
+      explanation: "The spec is accepted, but the event does not serve HTTPS."
+    correct_option: b
+    explanation: "TLS needs the certificate and the key, each from a key of a Secret. The certificate must name the Service."
+  - id: ats063-010-q25
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Find a silent Sensor"
+    source_readings:
+    - sections/section-010/module-03/course-04-finding-why-a-sensor-stays-silent.md
+    prompt: "A Sensor is `Deployed`, its pod runs, its log has no error, and no trigger runs. What do you check first?"
+    options:
+    - id: a
+      text: "The permissions of the service account."
+      explanation: "A permission fault shows an error line."
+    - id: b
+      text: "The names in the dependency and the filters, starting with the log of the EventSource."
+      explanation: "Correct. A silent Sensor without an error usually has a name or filter problem."
+    - id: c
+      text: "The version of the controller."
+      explanation: "The version does not explain one silent Sensor."
+    - id: d
+      text: "The size of the node."
+      explanation: "Resources do not cause silence without a restart or an event."
+    correct_option: b
+    explanation: "The controller does not check that the event named by a dependency exists, so a wrong name is not an error."

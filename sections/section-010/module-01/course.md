@@ -31,7 +31,7 @@ The playground is a kind cluster with Argo Workflows and Argo Events already ins
 
 No EventBus, EventSource or Sensor exists yet. You create them in the second part.
 
-The module has three parts. The first part explains events and the four stages of the flow. The second part builds the first pipeline. The third part follows one event through the pipeline and shows how to find the stage where an event stops.
+The module has four parts. The first part explains events and the four stages of the flow. The second part builds the first pipeline. The third part follows one event through the pipeline and shows how to find the stage where an event stops. The fourth part places Argo Events next to Argo Workflows, Argo CD and Argo Rollouts and says which project does which job.
 
 Launch your playground now, and keep it running next to you while you read:
 

@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: radio
+  namespace: starfleet
+spec:
+  nats:
+    arrival:
+      url: nats://nats.starfleet.svc:4222
+      subject: fleet.arivals
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: radio
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: arrival-dep
+      eventSourceName: radio
+      eventName: arrival
+  triggers:
+    - template:
+        name: run-arrival
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: arrival-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: report
+                arguments:
+                  parameters:
+                    - name: ship
+                      value: unset
+                templates:
+                  - name: report
+                    inputs:
+                      parameters:
+                        - name: ship
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [echo]
+                      args: ["arrival of {{inputs.parameters.ship}}"]
+          parameters:
+            - src:
+                dependencyName: arrival-dep
+                dataKey: body.ship
+              dest: spec.arguments.parameters.0.value

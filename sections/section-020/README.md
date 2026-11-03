@@ -46,6 +46,13 @@ Makes the reader able to configure and operate the components behind the event f
     astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-04/playground
     ```
 
+### 5. Observing And Securing The Components
+*   **Module Reader:** **[Module 5: Observing And Securing The Components](./module-05/course.md)**
+*   **Hands-on Playground:** `sections/section-020/module-05/playground`
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-05/playground
+    ```
+
 ### Section Capstone Challenge
 *   **Comprehensive Challenge:** Build The Escalation Pipeline Capstone — `sections/section-020/capstone/labs/lab-01`
     ```bash

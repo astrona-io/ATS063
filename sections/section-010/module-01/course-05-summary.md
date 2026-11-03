@@ -19,4 +19,6 @@ Key facts:
 - The Sensor pod, not the controller, calls the Kubernetes API for a trigger.
 - The controller sets the labels `eventsource-name` and `sensor-name` on the pods it creates.
 
+Argo Events does one job among the Argo projects: it turns an outside change into an object in the cluster. Argo Workflows runs the jobs, Argo CD keeps the cluster equal to a Git repository, and Argo Rollouts delivers new versions in steps. A trigger creates a Workflow or an Application as an ordinary object of the Kubernetes API, and the service account of the Sensor decides which objects it may create.
+
 <!-- astrona:playground:destroy -->

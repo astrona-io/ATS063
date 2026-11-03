@@ -29,7 +29,7 @@ The playground is a kind cluster with Argo Workflows and Argo Events installed. 
 | `starfleet` | pod `shuttle` | A client pod with `curl` |
 | `starfleet` | service accounts `event-trigger` and `workflow-runner` | The identity of Sensors that create Workflows and of Workflow pods |
 
-No Sensor exists yet. The module has three parts. The first part sends an event to the HTTP, log and Kubernetes triggers and reads the operations of the Workflow trigger. The second part defines failure with policies and repeats failed triggers. The third part adds a dead letter trigger and rate limit, and states what the Sensor guarantees.
+No Sensor exists yet. The module has four parts. The first part sends an event to the HTTP, log and Kubernetes triggers and reads the operations of the Workflow trigger. The second part defines failure with policies and repeats failed triggers. The third part adds a dead letter trigger and rate limit, and states what the Sensor guarantees. The fourth part joins two pipelines with an HTTP trigger that sends a bearer token from a Secret.
 
 ## How to work through it
 

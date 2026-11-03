@@ -28,7 +28,7 @@ The playground is a kind cluster with Argo Workflows and Argo Events installed. 
 | `starfleet` | pod `shuttle` | A client pod with `curl` |
 | `starfleet` | service accounts `event-trigger` and `workflow-runner` | The identity of Sensors that create Workflows and of Workflow pods |
 
-No Sensor exists yet. You create the Sensors in the three parts. The first part filters events on a dependency. The second part combines dependencies with trigger conditions and resets the stored state. The third part transforms event data before it is filtered.
+No Sensor exists yet. You create the Sensors in the four parts. The first part filters events on a dependency. The second part combines dependencies with trigger conditions and resets the stored state. The third part transforms event data before it is filtered. The fourth part runs the expression, script and time filters against real requests.
 
 ## What you build
 

@@ -26,7 +26,7 @@ The playground is a kind cluster with Argo Workflows and Argo Events installed. 
 | `starfleet` | pod `shuttle` | A client pod with `curl` |
 | `starfleet` | service accounts `event-trigger` and `workflow-runner` | The identity of Sensors that create Workflows and of Workflow pods |
 
-No EventBus exists yet. You create it in the first part. The module has three parts. The first part creates a bus and takes apart what the controller builds. The second part follows an event through the stream and reads the stream settings. The third part adds storage and server options and describes external buses.
+No EventBus exists yet. You create it in the first part. The module has four parts. The first part creates a bus and takes apart what the controller builds. The second part follows an event through the stream and reads the stream settings. The third part adds storage and server options and describes external buses. The fourth part breaks a bus on purpose and follows the checks from the status down to the pods and the clients.
 
 Launch your playground now, and keep it running next to you while you read:
 

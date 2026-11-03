@@ -28,7 +28,7 @@ The playground is a kind cluster with Argo Workflows and Argo Events installed. 
 | `starfleet` | pods `shuttle` and `drifter` | Client pods with `curl` |
 | `starfleet` | service accounts `event-trigger` and `workflow-runner` | The identity of Sensors that create Workflows and of Workflow pods |
 
-The module has three parts. The first part looks at the controller and at the objects it builds. The second part runs EventSource and Sensor pods more than once and follows a leader election. The third part sets resources and placement, and reads status and logs to find out why a pod does not run.
+The module has four parts. The first part looks at the controller and at the objects it builds. The second part runs EventSource and Sensor pods more than once and follows a leader election. The third part sets resources and placement, and reads status and logs to find out why a pod does not run. The fourth part creates a pipeline in a second namespace and shows what the controller shares and what each namespace owns.
 
 ## How the module is built
 

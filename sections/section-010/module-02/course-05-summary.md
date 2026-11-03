@@ -16,4 +16,6 @@ Key facts:
 - Webhook EventSources can run as several active pods. Calendar and resource EventSources run as one active pod with standby pods.
 - A change of an EventSource makes the controller replace its pod, so test only after the new pod is ready.
 
+A webhook event serves HTTPS when it has both `serverCertSecret` and `serverKeySecret`, and each field names a key in a Secret. The certificate must name the Service in its subject alternative name list, and a plain HTTP request to a TLS event creates no event. TLS protects the connection, and `authSecret` still decides who may send. Both can be set on one event.
+
 <!-- astrona:playground:destroy -->

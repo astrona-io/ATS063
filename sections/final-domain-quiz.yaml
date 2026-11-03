@@ -408,3 +408,179 @@ questions:
     correct_option: b
     explanation: Change spec.replicas on the EventSource or Sensor instead. The documentation
       says not to scale the generated Deployment manually.
+  - id: ats063-final-q15
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the fields of a NATS event"
+    source_readings:
+    - sections/section-010/module-04/course-02-receiving-messages-from-nats.md
+    prompt: "A NATS EventSource receives messages that contain JSON, and a Sensor must read the key `ship` from the body. Which setting of the NATS event makes this possible?"
+    options:
+    - id: a
+      text: "`subject: ship`"
+      explanation: "The subject names the channel to subscribe to. It does not change how the body is carried."
+    - id: b
+      text: "`jsonBody: true`"
+      explanation: "Correct. With this setting the body is embedded as JSON, so a path such as `body.ship` works."
+    - id: c
+      text: "`connectionBackoff: true`"
+      explanation: "The backoff settings control how the pod retries the connection. They do not affect the body."
+    - id: d
+      text: "`url: nats://ship`"
+      explanation: "The url names the NATS server. It does not decide how the body is carried."
+    correct_option: b
+    explanation: "The setting jsonBody belongs to the event next to url and subject. Without it the Sensor cannot address fields of the message."
+  - id: ats063-final-q16
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain what a plain NATS subscription does not guarantee"
+    source_readings:
+    - sections/section-010/module-04/course-02-receiving-messages-from-nats.md
+    prompt: "The pod of a NATS EventSource is down for one minute, and a publisher sends ten messages on the subject during that minute. What happens to those messages?"
+    options:
+    - id: a
+      text: "They are stored by NATS and delivered when the pod returns."
+      explanation: "A plain NATS subject is not durable, so the server does not store messages for a subscriber that is not connected."
+    - id: b
+      text: "They are lost, because a plain NATS subject is not durable."
+      explanation: "Correct. Only subscribers that are connected when a message is published receive it."
+    - id: c
+      text: "They are stored in the EventBus and replayed to the Sensor."
+      explanation: "The EventBus holds only events that the EventSource published, and the pod received none of these."
+    - id: d
+      text: "They are refused by the controller, which stops the publisher."
+      explanation: "The controller does not handle messages and has no link to the publisher."
+    correct_option: b
+    explanation: "A subscription type receives only what is published while it is connected. Use a durable system when messages must not be lost."
+  - id: ats063-final-q17
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Recognize a missing permission on a Sensor"
+    source_readings:
+    - sections/section-020/module-05/course-01-permissions-of-the-components.md
+    prompt: "A Sensor has no `serviceAccountName`, and its target is a Workflow. The Sensor is `Deployed` and its pod is `Running`. What do you see after an event?"
+    options:
+    - id: a
+      text: "The pod restarts in a loop."
+      explanation: "The pod runs normally. Only the trigger fails."
+    - id: b
+      text: "A `Forbidden` error in the log of the Sensor pod for the service account `default`."
+      explanation: "Correct. The trigger runs with the identity of the pod and the API server refuses it."
+    - id: c
+      text: "An error in the log of the EventSource."
+      explanation: "The EventSource has already published the event."
+    - id: d
+      text: "A failed condition on the EventBus."
+      explanation: "The bus delivered the event."
+    correct_option: b
+    explanation: "The error names the identity, the verb and the resource, which is what you need to write the missing rule."
+  - id: ats063-final-q18
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read the status of an EventSource with a missing bus"
+    source_readings:
+    - sections/section-020/module-05/course-04-finding-the-failing-component.md
+    prompt: "An EventSource sets `eventBusName: main`, and only the bus `default` exists. What do you see?"
+    options:
+    - id: a
+      text: "A running pod that retries the connection."
+      explanation: "The controller does not create the pod without the bus."
+    - id: b
+      text: "`Deployed` is not true, the status names a missing bus, and the EventSource has no pod."
+      explanation: "Correct. The reason is EventBusNotFound."
+    - id: c
+      text: "The pod uses the bus `default` instead."
+      explanation: "The controller does not fall back to another bus."
+    - id: d
+      text: "The API server refuses the object."
+      explanation: "The spec is valid. The bus is missing."
+    correct_option: b
+    explanation: "Remove the field to use the bus default, or create the bus that the name refers to."
+  - id: ats063-final-q19
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Serve a webhook over TLS"
+    source_readings:
+    - sections/section-010/module-02/course-04-encrypting-webhook-traffic-with-tls.md
+    prompt: "A webhook event sets only `serverCertSecret`. What is the result?"
+    options:
+    - id: a
+      text: "It serves HTTPS with a generated key."
+      explanation: "Both the certificate and the key are required."
+    - id: b
+      text: "It does not serve HTTPS, because both `serverCertSecret` and `serverKeySecret` are needed."
+      explanation: "Correct. The event needs both fields to serve HTTPS."
+    - id: c
+      text: "It serves HTTP on a second port."
+      explanation: "There is no second port."
+    - id: d
+      text: "It is refused by the controller."
+      explanation: "The spec is accepted, but the event does not serve HTTPS."
+    correct_option: b
+    explanation: "TLS needs the certificate and the key, each from a key of a Secret. The certificate must name the Service."
+  - id: ats063-final-q20
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Find a silent Sensor"
+    source_readings:
+    - sections/section-010/module-03/course-04-finding-why-a-sensor-stays-silent.md
+    prompt: "A Sensor is `Deployed`, its pod runs, its log has no error, and no trigger runs. What do you check first?"
+    options:
+    - id: a
+      text: "The permissions of the service account."
+      explanation: "A permission fault shows an error line."
+    - id: b
+      text: "The names in the dependency and the filters, starting with the log of the EventSource."
+      explanation: "Correct. A silent Sensor without an error usually has a name or filter problem."
+    - id: c
+      text: "The version of the controller."
+      explanation: "The version does not explain one silent Sensor."
+    - id: d
+      text: "The size of the node."
+      explanation: "Resources do not cause silence without a restart or an event."
+    correct_option: b
+    explanation: "The controller does not check that the event named by a dependency exists, so a wrong name is not an error."
+  - id: ats063-final-q21
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read a bus fault from the claims"
+    source_readings:
+    - sections/section-020/module-01/course-04-troubleshooting-the-bus.md
+    prompt: "The pod `eventbus-broken-js-0` stays `Pending`. What shows the reason?"
+    options:
+    - id: a
+      text: "The log of the pod."
+      explanation: "A Pending pod has not started and has no log."
+    - id: b
+      text: "The events of the pod and its claim, from `kubectl describe`."
+      explanation: "Correct. They name the missing storage class or the unbound claim."
+    - id: c
+      text: "The conditions of the EventBus, which always show the cause."
+      explanation: "The conditions show what the controller did, not whether the pods are ready."
+    - id: d
+      text: "The log of the EventSource."
+      explanation: "The EventSource only reports its own connection."
+    correct_option: b
+    explanation: "Check the EventBus status, the StatefulSet, the pods and claims, and then the events of the pod."
+  - id: ats063-final-q22
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Know the namespace limits of a dependency"
+    source_readings:
+    - sections/section-020/module-04/course-04-one-controller-many-namespaces.md
+    prompt: "A Sensor in `outpost` must react to an EventSource in `starfleet`. Why does it not work?"
+    options:
+    - id: a
+      text: "The controller serves only one namespace."
+      explanation: "One controller serves every namespace in the cluster installation."
+    - id: b
+      text: "A dependency and `eventBusName` have no namespace field, so a Sensor never reaches an EventSource in another namespace."
+      explanation: "Correct. Each namespace owns its own bus, EventSources and Sensors."
+    - id: c
+      text: "Sensors must be in `argo-events`."
+      explanation: "Sensors run in the namespace of their own pipeline."
+    - id: d
+      text: "The Sensor needs a ClusterRole to read events."
+      explanation: "Events come over the bus, not through the API."
+    correct_option: b
+    explanation: "Requests from another namespace reach an EventSource through <service>.<namespace>.svc, not through a Sensor dependency."

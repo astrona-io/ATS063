@@ -13,11 +13,13 @@ All labs and playgrounds are UNTESTED. They passed `astrona validate` and static
 | 010 | 01 | Event-Driven Automation And The Argo Events Flow |
 | 010 | 02 | Receiving Events With EventSources |
 | 010 | 03 | Reacting With Sensors And Triggers |
+| 010 | 04 | More EventSource Types |
 | 010 | capstone | Build The Harbor Pipeline |
 | 020 | 01 | The EventBus And JetStream |
 | 020 | 02 | Sensor Evaluation: Filters, Conditions And Transforms |
 | 020 | 03 | Trigger Types, Policies And Delivery Guarantees |
 | 020 | 04 | The Controller, Installation And High Availability |
+| 020 | 05 | Observing And Securing The Components |
 | 020 | capstone | Build The Escalation Pipeline |
 
 ## Hands-On Coverage
@@ -27,16 +29,18 @@ All labs and playgrounds are UNTESTED. They passed `astrona validate` and static
 | 010/01 | Build A Webhook Pipeline With Argo Events |
 | 010/02 | Secure A Webhook And Add A Calendar Event |
 | 010/03 | Fix A Sensor That Never Fires |
+| 010/04 | Fix A NATS EventSource |
 | 010/capstone | Build The Harbor Pipeline |
 | 020/01 | Build A Dedicated EventBus |
 | 020/02 | Fix A Sensor That Admits The Wrong Ships |
 | 020/03 | Make The Relay Deliver |
 | 020/04 | Restore A Highly Available Calendar EventSource |
+| 020/05 | Repair A Pipeline That Never Runs |
 | 020/capstone | Build The Escalation Pipeline |
 
 ## Assessments
 
-Section quizzes are `sections/section-010/quiz.yaml` and `sections/section-020/quiz.yaml`, 12 questions each. The final domain quiz is `sections/final-domain-quiz.yaml`. All are draft question banks.
+Section quizzes are `sections/section-010/quiz.yaml` and `sections/section-020/quiz.yaml`, 25 and 26 questions. The final domain quiz is `sections/final-domain-quiz.yaml`. All are draft question banks.
 
 ## More
 

@@ -18,4 +18,6 @@ Key facts:
 - A missing bus gives the reason `EventBusNotFound`, and an invalid spec gives the reason `InvalidEventSource`.
 - The log level is set with the environment variable `LOG_LEVEL`.
 
+One controller serves every namespace of the cluster, but each namespace owns its own EventBus, EventSources, Sensors and service accounts. A dependency and `eventBusName` have no namespace field, so a Sensor never reaches an EventSource in another namespace. A request from another namespace reaches an EventSource through the name `<service>.<namespace>.svc`. The namespace installation runs the controller with `--namespaced` and limits what it manages.
+
 <!-- astrona:playground:destroy -->

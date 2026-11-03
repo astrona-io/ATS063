@@ -17,4 +17,6 @@ Key facts:
 - The default stream limits in the 1.9.6 manifest are 50000 messages, 168 hours and a duplicates window of 300 seconds.
 - Deleting the EventBus deletes the stored events.
 
+A broken bus stops every EventSource and Sensor that uses it. Check the status of the EventBus first, then the StatefulSet, the pods and the claims, then the events of a pod that is `Pending`, and last the logs of the server and of the clients. The conditions show what the controller did, not whether the pods are ready. The volume claim template cannot change on a running bus, so a bus with wrong storage settings is replaced, and its stored events are lost.
+
 <!-- astrona:playground:destroy -->

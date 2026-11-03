@@ -15,10 +15,11 @@ training:
   description: >
     Training material covering the Argo Events domain of the Certified Argo
     Project Associate (CAPA) exam: the event flow from source to trigger,
-    webhook, calendar and resource EventSources, Sensors with dependencies,
+    webhook, calendar, resource and other EventSource types such as NATS, Sensors with dependencies,
     filters, conditions and parameters, Kubernetes and Workflow triggers, the
     JetStream EventBus, trigger policies and delivery guarantees, and the
-    controller with installation and high availability. Each module pairs a
+    controller with installation and high availability, and the permissions,
+    logs, metrics and network limits of the components. Each module pairs a
     layered reader with an ungraded playground and a graded lab. Each section
     closes with an integration capstone. Targets Argo Events 1.9.6.
 
@@ -103,8 +104,11 @@ modules:
           - name: "Argo Events webhook EventSource"
             url: https://argoproj.github.io/argo-events/eventsources/setup/webhook/
       - type: reading
+        title: "Argo Events And The Other Argo Projects"
+        path: sections/section-010/module-01/course-04-argo-events-and-the-other-argo-projects.md
+      - type: reading
         title: Summary
-        path: sections/section-010/module-01/course-04-summary.md
+        path: sections/section-010/module-01/course-05-summary.md
 
       - type: reading
         title: "Receiving Events With EventSources"
@@ -143,8 +147,11 @@ modules:
           - name: "Argo Events EventSource services"
             url: https://argoproj.github.io/argo-events/eventsources/services/
       - type: reading
+        title: "Encrypting Webhook Traffic With TLS"
+        path: sections/section-010/module-02/course-04-encrypting-webhook-traffic-with-tls.md
+      - type: reading
         title: Summary
-        path: sections/section-010/module-02/course-04-summary.md
+        path: sections/section-010/module-02/course-05-summary.md
 
       - type: reading
         title: "Reacting With Sensors And Triggers"
@@ -183,8 +190,52 @@ modules:
           - name: "Argo Events Argo Workflow trigger"
             url: https://argoproj.github.io/argo-events/sensors/triggers/argo-workflow/
       - type: reading
+        title: "Finding Why A Sensor Stays Silent"
+        path: sections/section-010/module-03/course-04-finding-why-a-sensor-stays-silent.md
+      - type: reading
         title: Summary
-        path: sections/section-010/module-03/course-04-summary.md
+        path: sections/section-010/module-03/course-05-summary.md
+
+      - type: reading
+        title: "More EventSource Types"
+        path: sections/section-010/module-04/course.md
+      - type: reading
+        title: "The EventSource Catalogue"
+        path: sections/section-010/module-04/course-01-the-eventsource-catalogue.md
+      - type: reading
+        title: "Receiving Messages From NATS"
+        path: sections/section-010/module-04/course-02-receiving-messages-from-nats.md
+      - type: reading
+        title: "Source Control And Cloud EventSources"
+        path: sections/section-010/module-04/course-03-source-control-and-cloud-eventsources.md
+      - type: reading
+        title: Question
+        path: sections/section-010/module-04/labs/lab-01/question.md
+      - type: lab
+        title: "Fix A NATS EventSource"
+        path: sections/section-010/module-04/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 35m
+        topic: nats-eventsource
+        task_kind: fix
+        tags: [argo-events, eventsource, nats, jsonbody]
+        learning_goals:
+          - Find why a NATS EventSource receives no messages and correct the subject
+          - Set jsonBody so that a Sensor can read fields of the message
+          - Confirm the result by publishing a message and reading the Workflow parameter
+        resources:
+          - name: "Argo Events NATS EventSource"
+            url: https://argoproj.github.io/argo-events/eventsources/setup/nats/
+          - name: "Argo Events EventSource concepts"
+            url: https://argoproj.github.io/argo-events/concepts/event_source/
+          - name: "Argo Events EventSource catalog"
+            url: https://argoproj.github.io/argo-events/eventsources/setup/webhook/
+      - type: reading
+        title: "Several Types In One EventSource"
+        path: sections/section-010/module-04/course-04-several-types-in-one-eventsource.md
+      - type: reading
+        title: Summary
+        path: sections/section-010/module-04/course-05-summary.md
 
       - type: reading
         title: Question
@@ -263,8 +314,11 @@ modules:
           - name: "Argo Events EventBus concepts"
             url: https://argoproj.github.io/argo-events/concepts/eventbus/
       - type: reading
+        title: "Troubleshooting The Bus"
+        path: sections/section-020/module-01/course-04-troubleshooting-the-bus.md
+      - type: reading
         title: Summary
-        path: sections/section-020/module-01/course-04-summary.md
+        path: sections/section-020/module-01/course-05-summary.md
 
       - type: reading
         title: "Sensor Evaluation: Filters, Conditions And Transforms"
@@ -303,8 +357,11 @@ modules:
           - name: "Argo Events transformation"
             url: https://argoproj.github.io/argo-events/sensors/transform/
       - type: reading
+        title: "Expression, Script And Time Filters In Practice"
+        path: sections/section-020/module-02/course-04-expression-script-and-time-filters.md
+      - type: reading
         title: Summary
-        path: sections/section-020/module-02/course-04-summary.md
+        path: sections/section-020/module-02/course-05-summary.md
 
       - type: reading
         title: "Trigger Types, Policies And Delivery Guarantees"
@@ -341,8 +398,11 @@ modules:
           - name: "Argo Events trigger policy"
             url: https://argoproj.github.io/argo-events/sensors/trigger-policy/
       - type: reading
+        title: "Chaining Pipelines With The HTTP Trigger"
+        path: sections/section-020/module-03/course-04-chaining-pipelines-with-the-http-trigger.md
+      - type: reading
         title: Summary
-        path: sections/section-020/module-03/course-04-summary.md
+        path: sections/section-020/module-03/course-05-summary.md
 
       - type: reading
         title: "The Controller, Installation And High Availability"
@@ -381,8 +441,54 @@ modules:
           - name: "Argo Events EventSource concepts"
             url: https://argoproj.github.io/argo-events/concepts/event_source/
       - type: reading
+        title: "One Controller For Many Namespaces"
+        path: sections/section-020/module-04/course-04-one-controller-many-namespaces.md
+      - type: reading
         title: Summary
-        path: sections/section-020/module-04/course-04-summary.md
+        path: sections/section-020/module-04/course-05-summary.md
+
+      - type: reading
+        title: "Observing And Securing The Components"
+        path: sections/section-020/module-05/course.md
+      - type: reading
+        title: "Permissions Of The Components"
+        path: sections/section-020/module-05/course-01-permissions-of-the-components.md
+      - type: reading
+        title: "Metrics And Logs"
+        path: sections/section-020/module-05/course-02-metrics-and-logs.md
+      - type: reading
+        title: "Limiting Network Access"
+        path: sections/section-020/module-05/course-03-limiting-network-access.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-05/labs/lab-01/question.md
+      - type: lab
+        title: "Repair A Pipeline That Never Runs"
+        path: sections/section-020/module-05/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 35m
+        topic: troubleshooting
+        task_kind: fix
+        tags: [argo-events, troubleshooting, rbac, logs, eventbus]
+        learning_goals:
+          - Find a missing EventBus from the status of an EventSource
+          - Match the event name between an EventSource and a Sensor dependency
+          - Give a Sensor a service account that may create the target object
+        resources:
+          - name: "Argo Events Sensor"
+            url: https://argoproj.github.io/argo-events/concepts/sensor/
+          - name: "Argo Events EventSource"
+            url: https://argoproj.github.io/argo-events/concepts/event_source/
+          - name: "Argo Events installation"
+            url: https://argoproj.github.io/argo-events/installation/
+          - name: "Argo Events EventBus"
+            url: https://argoproj.github.io/argo-events/concepts/eventbus/
+      - type: reading
+        title: "Finding The Failing Component"
+        path: sections/section-020/module-05/course-04-finding-the-failing-component.md
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-05/course-05-summary.md
 
       - type: reading
         title: Question

@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: fleet
+  namespace: starfleet
+spec:
+  service:
+    ports:
+      - port: 12000
+        targetPort: 12000
+  webhook:
+    report:
+      port: "12000"
+      endpoint: /report
+      method: POST
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: fleet
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: report-dep
+      eventSourceName: fleet
+      eventName: report
+  triggers:
+    - template:
+        name: run-report
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: report-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: main
+                templates:
+                  - name: main
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [echo, report]

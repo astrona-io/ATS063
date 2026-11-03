@@ -28,7 +28,7 @@ The playground is a kind cluster with Argo Workflows and Argo Events installed. 
 | `starfleet` | pod `shuttle` | A client pod with `curl` |
 | `starfleet` | service accounts `event-trigger` and `workflow-runner` | The identity of Sensors that create Workflows and of Workflow pods |
 
-No EventSource or Sensor exists yet. Each part creates what it needs. The module has three parts. The first part shows the anatomy of a Sensor, how several dependencies combine, and how several Sensors share one event. The second part shows how the data of an event is copied into the object that a trigger creates. The third part uses the Kubernetes trigger to create any object, and the Argo Workflow trigger to submit Workflows.
+No EventSource or Sensor exists yet. Each part creates what it needs. The module has four parts. The first part shows the anatomy of a Sensor, how several dependencies combine, and how several Sensors share one event. The second part shows how the data of an event is copied into the object that a trigger creates. The third part uses the Kubernetes trigger to create any object, and the Argo Workflow trigger to submit Workflows. The fourth part follows a fixed list of checks to find out why a Sensor that is deployed receives nothing.
 
 Launch your playground now, and keep it running next to you while you read:
 

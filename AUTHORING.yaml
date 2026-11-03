@@ -33,6 +33,8 @@ sections:
         title: Receiving Events With EventSources
       - id: module-03
         title: Reacting With Sensors And Triggers
+      - id: module-04
+        title: More EventSource Types
     capstone: Build The Harbor Pipeline
     quiz: sections/section-010/quiz.yaml
   - id: section-020
@@ -46,6 +48,8 @@ sections:
         title: Trigger Types, Policies And Delivery Guarantees
       - id: module-04
         title: The Controller, Installation And High Availability
+      - id: module-05
+        title: Observing And Securing The Components
     capstone: Build The Escalation Pipeline
     quiz: sections/section-020/quiz.yaml
 final_quiz: sections/final-domain-quiz.yaml

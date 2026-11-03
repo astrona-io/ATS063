@@ -30,7 +30,7 @@ The playground is a kind cluster with Argo Workflows and Argo Events installed. 
 | `outpost` | pod `drifter` | A client pod in another namespace |
 | `starfleet` | service accounts `event-trigger` and `workflow-runner` | The identity of Sensors that create Workflows and of Workflow pods |
 
-No EventSource or Sensor exists yet. The module has three parts. The first part works with the webhook EventSource: several events, its Service, its health endpoint and token authentication. The second part uses the calendar EventSource for events that come from time. The third part uses the resource EventSource to turn changes of Kubernetes objects into events.
+No EventSource or Sensor exists yet. The module has four parts. The first part works with the webhook EventSource: several events, its Service, its health endpoint and token authentication. The second part uses the calendar EventSource for events that come from time. The third part uses the resource EventSource to turn changes of Kubernetes objects into events. The fourth part encrypts the traffic of a webhook event with a certificate from a Secret.
 
 Launch your playground now, and keep it running next to you while you read:
 

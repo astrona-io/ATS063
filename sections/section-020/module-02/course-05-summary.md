@@ -17,4 +17,6 @@ Key facts:
 - Stored events do not expire without `conditionsReset`.
 - The pod of a Sensor is replaced when a dependency changes, so wait for the new pod before you send test events.
 
+The expression filter binds names to paths and evaluates one boolean expression. The script filter runs a Lua program on the event table and passes the event only when it returns `true`. The time filter admits events inside a daily window in UTC, and the window can cross midnight. A dependency combines its filter types with `and` by default, and `filtersLogicalOperator: or` on the dependency admits an event when one type passes. Every filter sees one event only.
+
 <!-- astrona:playground:destroy -->

@@ -1,0 +1,61 @@
+# event-trigger: the service account a Sensor uses to create Workflows.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: event-trigger
+  namespace: starfleet
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: event-trigger
+  namespace: starfleet
+rules:
+  - apiGroups: ["argoproj.io"]
+    resources: ["workflows"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: event-trigger
+  namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: event-trigger
+subjects:
+  - kind: ServiceAccount
+    name: event-trigger
+    namespace: starfleet
+---
+# workflow-runner: the service account a Workflow's pods use.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workflow-runner
+  namespace: starfleet
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: workflow-runner
+  namespace: starfleet
+rules:
+  - apiGroups: ["argoproj.io"]
+    resources: ["workflowtaskresults"]
+    verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: workflow-runner
+  namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: workflow-runner
+subjects:
+  - kind: ServiceAccount
+    name: workflow-runner
+    namespace: starfleet

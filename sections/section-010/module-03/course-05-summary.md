@@ -15,4 +15,6 @@ Key facts:
 - Data sources win over context sources when both are named in one parameter.
 - The trigger runs with the service account in `spec.template.serviceAccountName`.
 
+A Sensor that is deployed can still be silent. A dependency matches an event by `eventSourceName` and `eventName`, and a wrong name is not an error, because the controller does not check that the event exists. Find the fault in the direction of the event: the log of the EventSource, the names in the dependency, then the log of the Sensor. A silent Sensor with no error line usually has a name or filter problem, and a trigger problem shows an error line.
+
 <!-- astrona:playground:destroy -->

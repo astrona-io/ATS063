@@ -1,0 +1,11 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: radio
+  namespace: starfleet
+spec:
+  nats:
+    arrival:
+      url: nats://nats.starfleet.svc:4222
+      subject: fleet.arrival
+      jsonBody: true

@@ -15,4 +15,6 @@ Key facts:
 - A `dlqTrigger` cannot have a `dlqTrigger` of its own.
 - The result of a trigger is visible in the Sensor log and in the conditions of the Sensor object.
 
+The HTTP trigger can start a second pipeline by calling the Service of a webhook EventSource. The `secureHeaders` field sends a header value from a Secret, `payload` builds a JSON body from event data, and `policy.status` makes a refused request count as a failure. The first request is answered when the first EventSource accepts it, so the two pipelines are not tied together in time.
+
 <!-- astrona:playground:destroy -->

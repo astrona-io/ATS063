@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fix A NATS EventSource (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-lab-010-04
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: radio-subject
+      description: The NATS event arrival of EventSource radio subscribes to the subject fleet.arrival and is deployed
+      type: file
+      source: validation/validate-radio-subject.sh
+      hint: "Compare the subject in the EventSource with the subject the publisher uses. Read the spec.nats.arrival fields."
+    - name: radio-json-body
+      description: The NATS event arrival embeds JSON messages as JSON
+      type: file
+      source: validation/validate-radio-json-body.sh
+      hint: "The field jsonBody belongs to the event, next to url and subject. Without it the body is not JSON in the event."
+    - name: radio-workflow-ship
+      description: A real message creates an arrival- Workflow whose parameter ship holds the ship from the message, and the Workflow succeeds
+      type: file
+      source: validation/validate-radio-workflow-ship.sh
+      hint: "The Sensor is correct. After the change the controller replaces the EventSource pod, so wait for it before you publish."
+
+teardown:
+  keepCluster: false

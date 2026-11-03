@@ -187,7 +187,7 @@ Both pods are ready. The log lines about events come from the pod that is active
 
 The generated Deployment is an implementation detail of the controller. The documentation says not to scale it manually, for two reasons. First, the number of pods in the election group comes from `spec.replicas`, so a Deployment with three pods and a spec with two leaves the elector with the wrong size. Second, the controller updates the Deployment only when the hash of the spec changes, so a manual change is not reverted either. The Deployment then differs from the spec until the next real change. Change `spec.replicas` on the EventSource or the Sensor, and let the controller update the Deployment.
 
-Clean up before the next part:
+Clean up so that nothing is left over:
 
 ```sh
 kubectl -n starfleet delete sensor pulse
