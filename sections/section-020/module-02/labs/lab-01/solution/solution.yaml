@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: gatekeeper
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: dock-request
+      eventSourceName: beacon
+      eventName: dock
+      transform:
+        jq: ".body.ship |= ascii_upcase"
+      filters:
+        data:
+          - path: body.fuel
+            type: number
+            comparator: ">="
+            value:
+              - "20"
+          - path: body.class
+            type: string
+            value:
+              - "^scout$"
+    - name: clearance-check
+      eventSourceName: beacon
+      eventName: clearance
+      filters:
+        data:
+          - path: body.code
+            type: string
+            value:
+              - "^granted$"
+  triggers:
+    - template:
+        name: admit
+        conditions: "dock-request && clearance-check"
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: admit-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: report
+                arguments:
+                  parameters:
+                    - name: ship
+                      value: unset
+                templates:
+                  - name: report
+                    inputs:
+                      parameters:
+                        - name: ship
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [echo]
+                      args: ["{{inputs.parameters.ship}}"]
+          parameters:
+            - src:
+                dependencyName: dock-request
+                dataKey: body.ship
+              dest: spec.arguments.parameters.0.value

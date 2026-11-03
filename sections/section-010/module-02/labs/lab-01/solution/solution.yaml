@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: dispatch
+  namespace: starfleet
+spec:
+  service:
+    ports:
+      - port: 12000
+        targetPort: 12000
+  webhook:
+    order:
+      port: "12000"
+      endpoint: /order
+      method: POST
+      authSecret:
+        name: dispatch-token
+        key: token
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: ticker
+  namespace: starfleet
+spec:
+  calendar:
+    beat:
+      interval: 30s
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: ticker
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: beat-dep
+      eventSourceName: ticker
+      eventName: beat
+  triggers:
+    - template:
+        name: run-beat
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: beat-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: report
+                templates:
+                  - name: report
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [echo]
+                      args: ["tick"]

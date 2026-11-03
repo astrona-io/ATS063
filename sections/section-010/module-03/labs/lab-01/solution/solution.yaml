@@ -1,0 +1,55 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: launch
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+  - name: scout-dep
+    eventSourceName: fleet
+    eventName: scout
+  - name: relay-dep
+    eventSourceName: fleet
+    eventName: relay
+  triggers:
+  - template:
+      name: launch-ship
+      k8s:
+        operation: create
+        source:
+          resource:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: launch-
+            spec:
+              serviceAccountName: workflow-runner
+              entrypoint: report
+              arguments:
+                parameters:
+                - name: ship
+                  value: unset
+              templates:
+              - name: report
+                inputs:
+                  parameters:
+                  - name: ship
+                container:
+                  image: docker.io/library/busybox:1.37
+                  command:
+                  - echo
+                  args:
+                  - "{{inputs.parameters.ship}}"
+        parameters:
+        - src:
+            dependencyName: scout-dep
+            dataKey: body.ship
+          dest: spec.arguments.parameters.0.value
+        - src:
+            dependencyName: relay-dep
+            dataKey: body.ship
+          dest: spec.arguments.parameters.0.value
+      conditions: scout-dep || relay-dep

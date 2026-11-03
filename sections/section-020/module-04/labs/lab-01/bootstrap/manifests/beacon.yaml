@@ -1,0 +1,49 @@
+# Starting state: an EventSource with two replicas and Kubernetes leader election,
+# and a Sensor with one replica. The Role that lets the pods use a Lease is missing.
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: beacon
+  namespace: starfleet
+  annotations:
+    events.argoproj.io/leader-election: k8s
+spec:
+  replicas: 2
+  calendar:
+    tick:
+      interval: 20s
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: beacon
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: tick-dep
+      eventSourceName: beacon
+      eventName: tick
+  triggers:
+    - template:
+        name: patrol
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: beacon-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: main
+                ttlStrategy:
+                  secondsAfterCompletion: 120
+                templates:
+                  - name: main
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [sh, -c]
+                      args: ["echo patrol"]

@@ -1,17 +1,62 @@
+# Section 020: Understand Argo Event Components And Architecture
+
+Makes the reader able to configure and operate the components behind the event flow. The section covers the JetStream EventBus, the rules that decide when a Sensor runs a trigger, the trigger types with their retry and delivery settings, and the controller that builds and scales every EventSource and Sensor pod.
+
+**Curriculum item covered:** Understand Argo Event Components and Architecture
+
 ---
-draft: true
-exam_objectives:
-- Understand Argo Event Components and Architecture
+
+## What You Will Master
+
+- Describe what the controller builds for an EventBus, and set replicas, persistence, stream limits and a named bus
+- Filter events with data, expression, script, context and time filters, and know that a transform runs before the filters
+- Combine dependencies with `&&`, `||` and parentheses in trigger conditions, and reset a partial condition with `conditionsReset`
+- Use the HTTP, log, Kubernetes and Argo Workflow triggers, and set the policy, retry strategy, dead letter trigger and rate limit
+- Explain what the controller does, run EventSource and Sensor pods with high availability, and set resources, labels and placement through the template
+
 ---
-# Understand Argo Event Components and Architecture
 
-This section covers understand Argo Event Components and Architecture. It develops eventSource, EventBus And Sensor Architecture through mechanisms, examples, prerequisites and failure reasoning.
+## The Learning Path
 
-Read the module goals, teaching and closing summary in order. YAML checks are indexed separately and appear after designated summaries. Larger domains include an intermediate checkpoint before the final review.
+### 1. The EventBus And JetStream
+*   **Module Reader:** **[Module 1: The EventBus And JetStream](./module-01/course.md)**
+*   **Hands-on Playground:** `sections/section-020/module-01/playground`
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-01/playground
+    ```
 
-## Learning Outcomes
+### 2. Sensor Evaluation: Filters, Conditions And Transforms
+*   **Module Reader:** **[Module 2: Sensor Evaluation: Filters, Conditions And Transforms](./module-02/course.md)**
+*   **Hands-on Playground:** `sections/section-020/module-02/playground`
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-02/playground
+    ```
 
-- Assign ingestion, transport and dependency evaluation responsibilities.
-- Explain event envelopes and dependency names.
-- Distinguish controller resources from their active Pods and services.
-- Diagnose source, bus, Sensor and trigger failures separately.
+### 3. Trigger Types, Policies And Delivery Guarantees
+*   **Module Reader:** **[Module 3: Trigger Types, Policies And Delivery Guarantees](./module-03/course.md)**
+*   **Hands-on Playground:** `sections/section-020/module-03/playground`
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-03/playground
+    ```
+
+### 4. The Controller, Installation And High Availability
+*   **Module Reader:** **[Module 4: The Controller, Installation And High Availability](./module-04/course.md)**
+*   **Hands-on Playground:** `sections/section-020/module-04/playground`
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-04/playground
+    ```
+
+### Section Capstone Challenge
+*   **Comprehensive Challenge:** Build The Escalation Pipeline Capstone — `sections/section-020/capstone/labs/lab-01`
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/capstone/labs/lab-01
+    astrona submit -c .
+    ```
+*   **Hands-on Objective:** Create a JetStream EventBus with persistence and a stream limit, run a webhook EventSource with two pods on that bus, and write a Sensor with a data filter and two triggers that each wait for one dependency. The grader sends events and checks the Workflows.
+
+---
+
+## Ready for Assessment?
+
+*   **Take the Section 020 Knowledge Check:** `quiz.yaml`
+*   **Then take the final domain quiz:** `../final-domain-quiz.yaml`

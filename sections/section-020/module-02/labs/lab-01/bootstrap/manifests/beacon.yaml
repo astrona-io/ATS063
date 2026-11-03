@@ -1,0 +1,87 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: beacon
+  namespace: starfleet
+spec:
+  service:
+    ports:
+      - port: 12000
+        targetPort: 12000
+      - port: 13000
+        targetPort: 13000
+  webhook:
+    dock:
+      port: "12000"
+      endpoint: /dock
+      method: POST
+    clearance:
+      port: "13000"
+      endpoint: /clearance
+      method: POST
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: gatekeeper
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: dock-request
+      eventSourceName: beacon
+      eventName: dock
+      filters:
+        data:
+          - path: fuel
+            type: number
+            comparator: ">="
+            value:
+              - "20"
+          - path: body.class
+            type: string
+            value:
+              - scout
+    - name: clearance-check
+      eventSourceName: beacon
+      eventName: clearance
+      filters:
+        data:
+          - path: body.code
+            type: string
+            value:
+              - "^granted$"
+  triggers:
+    - template:
+        name: admit
+        conditions: dock && clearance
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: admit-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: report
+                arguments:
+                  parameters:
+                    - name: ship
+                      value: unset
+                templates:
+                  - name: report
+                    inputs:
+                      parameters:
+                        - name: ship
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [echo]
+                      args: ["{{inputs.parameters.ship}}"]
+          parameters:
+            - src:
+                dependencyName: dock-request
+                dataKey: body.ship
+              dest: spec.arguments.parameters.0.value

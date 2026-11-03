@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: webhook
+  namespace: starfleet
+spec:
+  service:
+    ports:
+      - port: 12000
+        targetPort: 12000
+  webhook:
+    mission:
+      port: "12000"
+      endpoint: /mission
+      method: POST
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: mission
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: mission-dep
+      eventSourceName: webhook
+      eventName: mission
+  triggers:
+    - template:
+        name: run-mission
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: mission-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: report
+                arguments:
+                  parameters:
+                    - name: message
+                      value: unset
+                templates:
+                  - name: report
+                    inputs:
+                      parameters:
+                        - name: message
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [echo]
+                      args: ["{{inputs.parameters.message}}"]
+          parameters:
+            - src:
+                dependencyName: mission-dep
+                dataKey: body.message
+              dest: spec.arguments.parameters.0.value

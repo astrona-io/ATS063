@@ -1,31 +1,15 @@
----
-draft: true
-exam_objectives:
-- Understand Argo Event Components and Architecture
----
-# Connect EventSource EventBus And Sensor
+# Question
 
-Deliver a webhook event and execute a Workflow using its data.
+Solve this question on: `terminal`
 
-## Starting state
+The ledger team in `starfleet` wants its events kept apart from everything else and kept across restarts. The namespace has no EventBus yet. Build a dedicated bus and run a small pipeline through it. All of the following must be true.
 
-The Events and Workflows controllers are installed. The exercise uses an internal webhook and event bus; no external sender is configured.
+1. Create an EventBus named `audit` in `starfleet` with the JetStream type, version `2.10.10` and `3` replicas. Each server pod must have its own `1Gi` volume claim, and the bus must be `Deployed`.
 
-Use a host shell with the private kubeconfig for this independent kind environment. A kubeconfig identifies the cluster and credentials used by kubectl, the Kubernetes command-line tool.
+2. The stream of the bus keeps messages for at most `24h` and at most `1000` messages. Set this with the stream configuration of the bus, so that the merged configuration in the status of the bus shows `maxAge` of `24h` and `maxMsgs` of `1000`.
 
-```sh
-export KUBECONFIG="$(astrona kubeconfig ats-063-lab-020-01-01)"
-test "$(kubectl config current-context)" = "kind-astro-ats-063-lab-020-01-01" || exit 1
-node_name="astro-ats-063-lab-020-01-01-control-plane"
-worker_name="astro-ats-063-lab-020-01-01-worker"
-```
+3. Create a webhook EventSource named `ledger` with one event named `entry` on port `12000` and the path `/entry` (method `POST`), exposed through a Service. Create a Sensor named `ledger` with one dependency on that event. Both objects must use the bus `audit`.
 
-Keep this connection selected. Host-level commands name only this environment's node containers. They do not operate on the host operating system.
+4. The Sensor creates a Workflow named `ledger-...` for each event. The first Workflow parameter, `message`, must hold the value of the key `message` in the JSON body of the request. The Workflow must finish with the phase `Succeeded`.
 
-## Required result
-
-Create a three-member JetStream bus, webhook EventSource and Sensor. Distinguish ingestion, transport and trigger responsibilities by inspecting each resource and the actual parameterised execution.
-
-## Verify The Result
-
-The grader checks the required object fields and actual observations. Wait for controller convergence before submitting. Preserve the task's namespace, workload names and unrelated components.
+Constraints: do not create an EventBus named `default`. Use the service account `event-trigger` for the Sensor and `workflow-runner` for the Workflow, and the image `docker.io/library/busybox:1.37` for the Workflow container. The pod `shuttle` in `starfleet` has `curl`. The Service for the webhook is `ledger-eventsource-svc`. `kubectl` already points at the cluster as the cluster administrator.

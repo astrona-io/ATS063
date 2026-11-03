@@ -1,31 +1,13 @@
----
-draft: true
-exam_objectives:
-- Understand Argo Events Fundamentals
----
-# Trigger A Workflow From An Event
+# Question
 
-Deliver a webhook event and execute a Workflow using its data.
+Solve this question on: `terminal`
 
-## Starting state
+The starfleet operations team wants a mission report to start whenever the dispatch system sends a request. The `starfleet` namespace has Argo Workflows, Argo Events and a running EventBus named `default`. Nothing else is deployed. Build the pipeline that turns a webhook request into a Workflow.
 
-The Events and Workflows controllers are installed. The exercise uses an internal webhook and event bus; no external sender is configured.
+1. Create an EventSource named `webhook` in `starfleet` with one webhook event named `mission`. It must listen on port `12000`, at the path `/mission`, and accept the method `POST`. It must also create the Service `webhook-eventsource-svc`, so that other pods can send requests to it by name.
 
-Use a host shell with the private kubeconfig for this independent kind environment. A kubeconfig identifies the cluster and credentials used by kubectl, the Kubernetes command-line tool.
+2. Create a Sensor named `mission` in `starfleet`. It must depend on the event `mission` of the EventSource `webhook`. The Sensor pod must run as the service account `event-trigger`.
 
-```sh
-export KUBECONFIG="$(astrona kubeconfig ats-063-lab-010-01-01)"
-test "$(kubectl config current-context)" = "kind-astro-ats-063-lab-010-01-01" || exit 1
-node_name="astro-ats-063-lab-010-01-01-control-plane"
-worker_name="astro-ats-063-lab-010-01-01-worker"
-```
+3. The Sensor must have one trigger that creates an Argo Workflow with the name prefix `mission-`. Each event must create a new Workflow. The Workflow must run as the service account `workflow-runner` and print the text from the field `message` of the JSON request body. The Workflow must finish with the phase `Succeeded`.
 
-Keep this connection selected. Host-level commands name only this environment's node containers. They do not operate on the host operating system.
-
-## Required result
-
-Create a dependency and a Kubernetes object trigger. POST the exact JSON payload, then verify the generated Workflow consumes body.id. The fixed workflow name prevents a second same-name object; this is not a general exactly-once guarantee.
-
-## Verify The Result
-
-The grader checks the required object fields and actual observations. Wait for controller convergence before submitting. Preserve the task's namespace, workload names and unrelated components.
+Constraints: do not change the EventBus, the service accounts or the pods `shuttle` and `drifter`. The pod `shuttle` in `starfleet` has `curl` and can be used to send test requests. `kubectl` already points at the cluster as the cluster administrator.

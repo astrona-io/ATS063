@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Make The Relay Deliver (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-lab-020-03
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: relay-sensor-valid
+      description: Sensor relay is deployed, keeps the dependency gate and the trigger notify-beacon, and the beacon service is unchanged
+      type: file
+      source: validation/validate-relay-sensor-valid.sh
+      hint: "Describe the Sensor and read its conditions. A dlqTrigger needs atLeastOnce true on both triggers, and the beacon ConfigMap must not be edited."
+    - name: relay-delivers-with-retries
+      description: A request to the webhook reaches the beacon with the token header and is accepted exactly once after retries
+      type: file
+      source: validation/validate-relay-delivers-with-retries.sh
+      hint: "The beacon rejects a message without the header X-Fleet-Token and answers 503 to the first two requests of a body. Add the header, a policy that allows only 200, atLeastOnce true and a retryStrategy with at least 3 steps."
+    - name: relay-parks-poison
+      description: A message that the beacon always rejects is stored once on the dead letter endpoint, is never accepted, and is tried between 3 and 10 times
+      type: file
+      source: validation/validate-relay-parks-poison.sh
+      hint: "Add a dlqTrigger with atLeastOnce true that posts the same id to /cgi-bin/dead. The retryStrategy must stay finite."
+    - name: relay-handles-burst
+      description: Three requests sent in a row are all accepted and none of them is dead-lettered
+      type: file
+      source: validation/validate-relay-handles-burst.sh
+      hint: "Each trigger run is independent, so the same trigger settings must work for several events at once."
+
+teardown:
+  keepCluster: false

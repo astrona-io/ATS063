@@ -199,53 +199,29 @@ Strict guidelines:
 
 ## About this repo (ATS063 only)
 
-The course covers **Argo Events**, worth **12%** of
-**Certified Argo Project Associate (CAPA)**. It is part of **ATP012**.
-The official objectives are listed in `astrona.yaml` and mapped in `CURRICULUM.md`.
+The course covers **Argo Events**, worth **12%** of **Certified Argo Project Associate (CAPA)**. It is part of **ATP012**. The official objectives are listed in `astrona.yaml` and mapped in `CURRICULUM.md`. Everything targets Argo Events v1.9.6, Argo Workflows v3.7.3 and Kubernetes 1.35 on kind.
 
-### Reading-only scope
+### Layout
 
-The maintainer approved the lesson plan, asked for deeper teaching, and explicitly
-requested **no labs or playgrounds**. That instruction overrides shared examples
-about hands-on environments, graded labs and playground markers. Do not create
-runtime configurations, executable exercises or playground lifecycle markers.
-The course must be usable without a cluster or installed command-line tools.
+- `sections/section-010` (fundamentals): modules 01 to 03, then a capstone lab and `quiz.yaml`.
+- `sections/section-020` (components and architecture): modules 01 to 04, then a capstone lab and `quiz.yaml`.
+- `sections/final-domain-quiz.yaml`: the final knowledge check.
+- Each module has `course.md` (landing page), `course-0N-*.md` parts, a `# Summary` page, `playground/` and `labs/lab-01/`.
+
+### Playgrounds and labs
+
+Every module has one ungraded playground and one graded lab (difficulty intermediate in `astrona.yaml`). Every section has a capstone lab (difficulty advanced). The environments share one setup script that installs Argo Workflows and Argo Events cluster-wide and creates the namespaces `starfleet` and `outpost`, the pods `shuttle` and `drifter` with `curl`, and the service accounts `event-trigger` and `workflow-runner`. A `bootstrap/prepare.sh` adds the starting objects of one environment. Validation scripts send real requests with `curl` from `shuttle` and check the Workflows that result.
+
+All labs and playgrounds are UNTESTED. They were built from the upstream documentation and source without a cluster run. Do not claim a run until one is recorded in `.astrona/build-state.yaml`.
 
 ### Teaching structure and depth
 
-Every section begins with its own introduction and measurable learning outcomes.
-Every module contains a landing page, developed teaching lessons and a final
-`# Summary` page. Put the summary after all its lessons and before the next
-module. This reading-only summary has no playground destruction marker.
+Every module has a landing page that ends with the playground marker, reading parts, and a `# Summary` page that ends with the playground destroy marker. Put the summary after all parts. Explain mechanisms, responsible components, realistic examples and the limits of each claim. Show command output only when it is certain. Each part with commands has one renew marker before its first hands-on step. Do not link to other pages, and do not refer to other parts, modules or sections.
 
-Explain mechanisms, responsible components, realistic examples and the limits
-of each claim. Include worked reasoning and relevant failure cases. Avoid thin
-outlines, repetitive filler and invented command output. Split broad topics when
-needed; do not force a fixed number of lessons. The shared plain-English,
-self-contained-page and Mermaid rules apply throughout.
+### Knowledge checks
 
-### Reusable question data
-
-Write original single-choice questions as YAML banks under section folders and
-`assessments/`. Use the versioned contract in `schemas/question-bank.schema.json`
-and teaching order in `assessments/index.yaml`. Each bank has 5–15 questions with
-stable IDs, one correct option, per-option feedback, a measurable learning
-objective and source reading paths for author traceability.
-
-Do not register YAML as a Markdown reading. A future renderer consumes the bank
-index and presents the checkpoint after its declared reading, preserving bank
-order when several share an anchor. Do not expose answer keys before submission
-in a production quiz interface. These public banks are practice material, not
-secure or official exam questions.
+`sections/section-0X0/quiz.yaml` is a question bank per section (status draft, `kind: question_bank`) and `sections/final-domain-quiz.yaml` covers the whole domain. They are listed in `astrona.yaml` as `type: quiz` entries with `pass_score: 70`. Each question is single choice with four options and an explanation for each option. They are practice material, not official exam questions.
 
 ### Review and authoring checks
 
-Preserve the shared CLAUDE.md prefix copied from ATS015. Keep course IDs, official
-domain weights and ATP links unchanged. Technical pages have `draft: true` in
-Markdown front matter until review; a module-level flag alone is insufficient.
-The ATP registration remains draft until publication is approved.
-
-Primary author sources are recorded in `SOURCES.md`. The objective list was
-verified on 2026-10-11. Detailed reading expansions were written on 2026-10-11.
-Validate manifest paths, summary ordering, curriculum coverage and question
-contracts. Do not claim runtime verification for a reading-only course.
+Keep course IDs and official domain weights unchanged. Primary sources are recorded in `SOURCES.md`. Validate every playground and lab with `astrona validate --accept-terms --headless -c <dir>`, run `bash -n` on every shell script, and parse every YAML file. Build progress is recorded in `.astrona/build-state.yaml`.

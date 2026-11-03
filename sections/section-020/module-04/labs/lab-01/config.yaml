@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Restore A Highly Available Calendar EventSource (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-lab-020-04
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: eventsource-ha
+      description: EventSource beacon has two replicas, the Kubernetes leader election annotation, and two running pods that use a dedicated service account
+      type: file
+      source: validation/validate-eventsource-ha.sh
+      hint: "The pods of an EventSource use the service account in spec.template.serviceAccountName. Without it they run as the default service account."
+    - name: leader-election
+      description: The service account of the EventSource may get, create and update leases only, the Lease eventsource-beacon names a running pod, and deleting that pod moves the lease to another pod
+      type: file
+      source: validation/validate-leader-election.sh
+      hint: "The pods create the Lease eventsource-beacon in starfleet. Bind a Role with get, create and update on leases in coordination.k8s.io to the service account of the EventSource."
+    - name: workload-resources
+      description: The main containers of the EventSource and Sensor pods have the requested resource requests and limits
+      type: file
+      source: validation/validate-workload-resources.sh
+      hint: "The field is spec.template.container.resources on both objects. The EventSource needs a memory limit of 128Mi and the Sensor 256Mi."
+    - name: sensor-ha
+      description: Sensor beacon has two replicas with two running pods and still uses the service account event-trigger
+      type: file
+      source: validation/validate-sensor-ha.sh
+      hint: "Set spec.replicas on the Sensor. Keep spec.template.serviceAccountName as event-trigger, because the trigger creates Workflows with it."
+    - name: event-flow
+      description: A new beacon- Workflow is created by a calendar event and reaches Succeeded
+      type: file
+      source: validation/validate-event-flow.sh
+      hint: "The calendar produces one event every 20 seconds, but only the pod that holds the lease runs the calendar. Check the log of both EventSource pods."
+
+teardown:
+  keepCluster: false

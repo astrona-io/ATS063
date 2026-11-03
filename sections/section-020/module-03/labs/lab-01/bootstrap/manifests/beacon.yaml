@@ -1,0 +1,73 @@
+# beacon: a small HTTP service. The learner must not change it.
+# Rule: the header X-Fleet-Token must be nova. A body with the word poison always gets 503.
+# Any other body gets 503 for its first two requests and 200 from the third.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beacon-cgi
+  namespace: starfleet
+data:
+  hook: |
+    #!/bin/sh
+    body=$(dd bs=1 count="${CONTENT_LENGTH:-0}" 2>/dev/null)
+    mkdir -p /tmp/state
+    reply() {
+      printf 'Status: %s\r\nContent-Type: text/plain\r\n\r\n%s\n' "$1" "$2"
+      echo "$(date +%T) $1 $body" >> /tmp/state/requests.log
+    }
+    if [ "${HTTP_X_FLEET_TOKEN:-}" != "nova" ]; then
+      reply "403 Forbidden" "token missing"; exit 0
+    fi
+    case "$body" in
+      *poison*) reply "503 Service Unavailable" "poison"; exit 0 ;;
+    esac
+    echo "$body" >> /tmp/state/attempts.log
+    n=$(grep -cxF -- "$body" /tmp/state/attempts.log)
+    if [ "$n" -lt 3 ]; then reply "503 Service Unavailable" "try again"; exit 0; fi
+    echo "$body" >> /tmp/state/accepted.log
+    reply "200 OK" "accepted"
+  dead: |
+    #!/bin/sh
+    body=$(dd bs=1 count="${CONTENT_LENGTH:-0}" 2>/dev/null)
+    mkdir -p /tmp/state
+    echo "$body" >> /tmp/state/dead.log
+    printf 'Status: 200 OK\r\nContent-Type: text/plain\r\n\r\nstored\n'
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: beacon
+  namespace: starfleet
+  labels:
+    app: beacon
+spec:
+  containers:
+    - name: httpd
+      image: docker.io/library/busybox:1.37
+      command: [sh, -c]
+      args:
+        - mkdir -p /www/cgi-bin /tmp/state && cp /scripts/hook /scripts/dead /www/cgi-bin/ && chmod 755 /www/cgi-bin/hook /www/cgi-bin/dead && exec httpd -f -vv -p 8080 -h /www
+      ports:
+        - containerPort: 8080
+      readinessProbe:
+        tcpSocket:
+          port: 8080
+      volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+  volumes:
+    - name: scripts
+      configMap:
+        name: beacon-cgi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beacon
+  namespace: starfleet
+spec:
+  selector:
+    app: beacon
+  ports:
+    - port: 8080
+      targetPort: 8080

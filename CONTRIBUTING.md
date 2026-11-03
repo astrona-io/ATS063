@@ -1,9 +1,7 @@
 # Contributing
 
-Read CLAUDE.md before editing. Its shared prefix is copied from ATS015, while the custom portion describes ATS063: Certified Argo Project Associate (CAPA), Argo Events (12%), part of ATP012.
+Read CLAUDE.md before editing. It holds the writing rules and the description of ATS063: Certified Argo Project Associate (CAPA), Argo Events (12%), part of ATP012.
 
-Preserve IDs, weights and existing track registration. Develop self-contained explanations with mechanisms, examples, prerequisites and failure reasoning. Start each section with an introduction and end each module with its own Summary. Keep technical Markdown draft until review.
+Preserve IDs, weights and existing track registration. Write self-contained explanations with mechanisms, examples, prerequisites and failure reasoning. Every module has a playground, a graded lab and a summary, and every section ends with a capstone lab and a knowledge check.
 
-The maintainer explicitly requires reading-only material: no labs, playgrounds, runtime configurations or lifecycle markers. Do not claim executed results. YAML questions use the local schema and separate index; preserve stable identities and supported per-option feedback.
-
-Use primary sources in SOURCES.md and record adaptation paths in AUTHORING.yaml. Run the preparation reading verifier and content-sync parser checks when changing structure. Review Markdown and questions for semantic correctness as well as structure.
+Do not claim executed results for labs or playgrounds until a run is recorded. Run `astrona validate --accept-terms --headless -c <dir>` on every lab and playground, `bash -n` on every script and a YAML parse on every YAML file when you change them. Use the sources in SOURCES.md and verify fields against the v1.9.6 tag of Argo Events.

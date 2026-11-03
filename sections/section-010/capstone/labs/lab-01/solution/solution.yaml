@@ -1,0 +1,89 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: harbor
+  namespace: starfleet
+spec:
+  service:
+    ports:
+      - port: 12000
+        targetPort: 12000
+  webhook:
+    arrival:
+      port: "12000"
+      endpoint: /arrival
+      method: POST
+      authSecret:
+        name: harbor-token
+        key: token
+    departure:
+      port: "12000"
+      endpoint: /departure
+      method: POST
+      authSecret:
+        name: harbor-token
+        key: token
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: logbook
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: arrival-dep
+      eventSourceName: harbor
+      eventName: arrival
+    - name: departure-dep
+      eventSourceName: harbor
+      eventName: departure
+  triggers:
+    - template:
+        name: record-movement
+        conditions: "arrival-dep || departure-dep"
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: logbook-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: main
+                arguments:
+                  parameters:
+                    - name: ship
+                      value: unset
+                    - name: movement
+                      value: unset
+                templates:
+                  - name: main
+                    inputs:
+                      parameters:
+                        - name: ship
+                        - name: movement
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [sh, -c]
+                      args: ["echo {{inputs.parameters.movement}} {{inputs.parameters.ship}}"]
+          parameters:
+            - src:
+                dependencyName: arrival-dep
+                dataKey: body.ship
+              dest: spec.arguments.parameters.0.value
+            - src:
+                dependencyName: departure-dep
+                dataKey: body.ship
+              dest: spec.arguments.parameters.0.value
+            - src:
+                dependencyName: arrival-dep
+                contextKey: subject
+              dest: spec.arguments.parameters.1.value
+            - src:
+                dependencyName: departure-dep
+                contextKey: subject
+              dest: spec.arguments.parameters.1.value

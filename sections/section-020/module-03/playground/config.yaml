@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Trigger Types, Policies And Delivery Guarantees (PLAYGROUND). Ungraded environment: setup runs, then it stays running.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-playground-020-03
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+teardown:
+  keepCluster: false

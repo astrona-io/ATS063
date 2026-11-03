@@ -1,0 +1,349 @@
+# Knowledge check for section 010. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats063-010
+course_id: ATS063
+exam_code: CAPA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-010
+  title: "Understand Argo Events Fundamentals"
+questions:
+  - id: ats063-010-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: Name the four stages of an Argo Events pipeline and the component
+      that does the work in each
+    source_readings:
+    - sections/section-010/module-01/course-01-events-and-the-four-stages.md
+    prompt: An HTTP request arrives at a pipeline and ends up as a new Workflow in the
+      cluster. Which sequence of components handles it?
+    options:
+    - id: a
+      text: Sensor, then EventBus, then EventSource, then trigger.
+      explanation: The Sensor is the consumer of events. It cannot come before the component
+        that receives the request.
+    - id: b
+      text: EventSource, then Sensor, then EventBus, then trigger.
+      explanation: The EventBus sits between the EventSource and the Sensor. The Sensor
+        reads events from the bus.
+    - id: c
+      text: EventSource, then EventBus, then Sensor, then trigger.
+      explanation: Correct. The EventSource receives the request and publishes it to
+        the bus, the Sensor reads it from the bus and decides, and the trigger performs
+        the action.
+    - id: d
+      text: EventBus, then EventSource, then trigger, then Sensor.
+      explanation: The bus carries events, it does not produce them, and the trigger
+        is part of the Sensor.
+    correct_option: c
+    explanation: The EventSource receives or watches for occurrences and publishes them
+      to the EventBus. The Sensor reads from the bus, evaluates its dependencies and
+      filters, and runs its triggers.
+  - id: ats063-010-q02
+    type: single_choice
+    difficulty: beginner
+    learning_objective: 'Read the fields of a webhook event: context and data with header
+      and body'
+    source_readings:
+    - sections/section-010/module-01/course-01-events-and-the-four-stages.md
+    prompt: A client sends the JSON body `{"message":"hello"}` to a webhook EventSource.
+      Which path in a Sensor trigger parameter reads the text `hello`?
+    options:
+    - id: a
+      text: "`message`"
+      explanation: The body of a webhook event is under the `body` field of the event
+        data, so the path must start with `body`.
+    - id: b
+      text: "`body.message`"
+      explanation: Correct. For a webhook event, the data has a `header` and a `body`,
+        and the JSON fields of the request are inside `body`.
+    - id: c
+      text: "`header.message`"
+      explanation: The header holds the HTTP headers of the request, not the JSON body.
+    - id: d
+      text: "`context.message`"
+      explanation: The context describes the event, for example its source and type.
+        It does not hold the request payload.
+    correct_option: b
+    explanation: The event data of a webhook has a header with the HTTP headers and
+      a body with the request body. The JSON field is addressed as body.message.
+  - id: ats063-010-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Connect a Sensor dependency to the right EventSource and event
+      name
+    source_readings:
+    - sections/section-010/module-01/course-02-building-the-first-pipeline.md
+    prompt: 'An EventSource named `webhook` has the spec `webhook: {example: {port:
+      "12000", endpoint: /example, method: POST}}`. A Sensor dependency is named `example-dep`.
+      Which `eventSourceName` and `eventName` must the dependency use?'
+    options:
+    - id: a
+      text: "`eventSourceName: webhook` and `eventName: example`."
+      explanation: Correct. The EventSource name is `metadata.name`, and the event name
+        is the key under the event source type.
+    - id: b
+      text: "`eventSourceName: example-dep` and `eventName: example`."
+      explanation: The dependency name is only a label for the trigger parameters. It
+        is not the EventSource name.
+    - id: c
+      text: "`eventSourceName: webhook` and `eventName: /example`."
+      explanation: The event name is the key `example`, not the endpoint path.
+    - id: d
+      text: "`eventSourceName: example` and `eventName: webhook`."
+      explanation: The two values are swapped. The type key `webhook` is not an event
+        name.
+    correct_option: a
+    explanation: eventSourceName is the metadata.name of the EventSource, and eventName
+      is the key of the event under the type. The dependency name only labels the dependency
+      inside the Sensor.
+  - id: ats063-010-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Find the stage where an event stops by the evidence each stage
+      leaves
+    source_readings:
+    - sections/section-010/module-01/course-03-following-one-event.md
+    prompt: A request to the EventSource Service returns HTTP status 200, but no Workflow
+      appears. The Sensor pod log shows no line about the dependency. Which check is
+      the most useful next?
+    options:
+    - id: a
+      text: Read the logs of the `controller-manager` Deployment, because it handles
+        events.
+      explanation: The controller reconciles objects. It does not carry events.
+    - id: b
+      text: Compare `eventSourceName` and `eventName` in the Sensor dependency with
+        the EventSource name and its event key.
+      explanation: Correct. The 200 shows the EventSource accepted the request. A Sensor
+        that never logs a received event usually subscribes to a name that nobody publishes
+        to.
+    - id: c
+      text: Increase the number of EventBus replicas.
+      explanation: A mismatch in names is not fixed by more bus replicas.
+    - id: d
+      text: Delete the Workflow controller pod.
+      explanation: No Workflow was created, so the Workflow controller has not been
+        reached yet.
+    correct_option: b
+    explanation: The 200 proves the EventSource stage. When the Sensor never receives
+      the event, the dependency names are the first thing to compare.
+  - id: ats063-010-q05
+    type: single_choice
+    difficulty: beginner
+    learning_objective: Explain the difference between an EventSource name and an event
+      name and the uniqueness rule for event names
+    source_readings:
+    - sections/section-010/module-02/course-01-webhook-endpoints-and-access.md
+    prompt: An EventSource named `gateway` has the events `order` and `status` under
+      `spec.webhook`. A Sensor must react to `status` only. Which dependency is correct?
+    options:
+    - id: a
+      text: "`eventSourceName: gateway` and `eventName: status`."
+      explanation: Correct. The EventSource name is `metadata.name`, and the event name
+        is the key under the type.
+    - id: b
+      text: "`eventSourceName: webhook` and `eventName: status`."
+      explanation: "`webhook` is the type of the events, not the name of the EventSource."
+    - id: c
+      text: "`eventSourceName: status` and `eventName: gateway`."
+      explanation: The two values are swapped.
+    - id: d
+      text: "`eventSourceName: gateway` and `eventName: /status`."
+      explanation: The event name is the map key, not the endpoint path.
+    correct_option: a
+    explanation: A dependency is the pair of the EventSource name and the event name.
+      The type key `webhook` is neither of them.
+  - id: ats063-010-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Configure bearer-token authentication on a webhook event and
+      send a request that passes it
+    source_readings:
+    - sections/section-010/module-02/course-01-webhook-endpoints-and-access.md
+    prompt: The event `order` has `authSecret` with the Secret `webhook-token` and the
+      key `token`. The Secret holds the value `abc123`. Which request becomes an event?
+    options:
+    - id: a
+      text: 'A POST with the header `Authorization: abc123`.'
+      explanation: The value must start with the word `Bearer` and a space.
+    - id: b
+      text: 'A POST with the header `Authorization: Bearer abc123`.'
+      explanation: Correct. The header carries the word `Bearer`, a space and the token
+        from the Secret.
+    - id: c
+      text: 'A POST with the header `X-Token: abc123`.'
+      explanation: The token is read from the `Authorization` header.
+    - id: d
+      text: 'A GET on `/health` with the header `Authorization: Bearer abc123`.'
+      explanation: The health endpoint answers without a token and never creates an
+        event.
+    correct_option: b
+    explanation: The EventSource compares the Authorization header with the word Bearer
+      and the token from the Secret. Only requests that pass the check are published
+      as events.
+  - id: ats063-010-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Choose between an interval and a schedule and read the data
+      of a calendar event
+    source_readings:
+    - sections/section-010/module-02/course-02-calendar-events-from-time.md
+    prompt: 'A calendar event has `metadata: {ship: scout}`. Which trigger parameter
+      `dataKey` reads the text `scout`?'
+    options:
+    - id: a
+      text: "`body.ship`"
+      explanation: A calendar event has no request body.
+    - id: b
+      text: "`ship`"
+      explanation: The static payload is under the field `metadata`.
+    - id: c
+      text: "`eventTime.ship`"
+      explanation: "`eventTime` is the time of the event, a single value."
+    - id: d
+      text: "`metadata.ship`"
+      explanation: Correct. The data of a calendar event has the fields `eventTime`
+        and `metadata`.
+    correct_option: d
+    explanation: The static metadata of a calendar event is delivered in the data field
+      metadata, so the path is metadata.ship.
+  - id: ats063-010-q08
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Configure a resource EventSource with the permission and filters
+      it needs
+    source_readings:
+    - sections/section-010/module-02/course-03-resource-events-from-the-cluster.md
+    prompt: A resource EventSource watches ConfigMaps and the Sensor never receives
+      an event, although ConfigMaps change. The EventSource pod is running. What is
+      the most likely cause?
+    options:
+    - id: a
+      text: The service account of the EventSource pod lacks `get`, `list` and `watch`
+        on ConfigMaps.
+      explanation: Correct. The pod calls the API server with its own service account,
+        so without these verbs the watch fails and no event is published.
+    - id: b
+      text: A calendar EventSource is needed for the watch to start.
+      explanation: The resource type does not depend on the calendar type.
+    - id: c
+      text: 'The Sensor must have `afterStart: true`.'
+      explanation: "`afterStart` is a filter of the resource event, not of the Sensor."
+    - id: d
+      text: ConfigMaps cannot be watched, only Workflows.
+      explanation: Any resource that the API server serves can be watched, with permission.
+    correct_option: a
+    explanation: The EventSource pod runs as the service account in spec.template.serviceAccountName
+      and needs read access to the resource it watches.
+  - id: ats063-010-q09
+    type: single_choice
+    difficulty: beginner
+    learning_objective: Explain that a Sensor with several dependencies and no conditions
+      waits for all of them
+    source_readings:
+    - sections/section-010/module-03/course-01-sensor-anatomy-and-dependencies.md
+    prompt: A Sensor has two dependencies, `build` and `approve`, and one trigger with
+      no `conditions`. Only an event for `build` arrives, and no event for `approve`
+      ever arrives. What happens?
+    options:
+    - id: a
+      text: The trigger runs once, because one dependency is enough.
+      explanation: One dependency is enough only when a condition says so.
+    - id: b
+      text: The Sensor reports an error, because the second dependency timed out.
+      explanation: A missing event is not an error. The Sensor keeps waiting.
+    - id: c
+      text: The trigger does not run, because the default rule needs every dependency
+        to deliver an event.
+      explanation: Correct. Without `conditions` the trigger waits until all dependencies
+        are satisfied.
+    - id: d
+      text: The trigger runs, but the parameters of the missing dependency stay empty.
+      explanation: The trigger does not run at all while a dependency is missing.
+    correct_option: c
+    explanation: The default rule is an AND of all dependencies. A Sensor that must
+      react to either event needs a condition with an or.
+  - id: ats063-010-q10
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Write a trigger condition that runs on either of two dependencies
+    source_readings:
+    - sections/section-010/module-03/course-01-sensor-anatomy-and-dependencies.md
+    prompt: A Sensor has the dependencies named `build-dep` and `approve-dep`. They
+      point at the events `build` and `approve` of the EventSource `pipeline`. Which
+      `conditions` value makes the trigger run when either event arrives?
+    options:
+    - id: a
+      text: "`build && approve`"
+      explanation: This uses event names, and `&&` means both.
+    - id: b
+      text: "`build-dep && approve-dep`"
+      explanation: This uses the right names, but `&&` waits for both events.
+    - id: c
+      text: "`pipeline || pipeline`"
+      explanation: The expression is written with dependency names, not the EventSource
+        name.
+    - id: d
+      text: "`build-dep || approve-dep`"
+      explanation: Correct. The expression uses dependency names and `||` for either.
+    correct_option: d
+    explanation: Conditions are boolean expressions over dependency names. The operator
+      `||` is true when either side is true.
+  - id: ats063-010-q11
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Choose the parameter operation that keeps an existing prefix
+      in a generated name
+    source_readings:
+    - sections/section-010/module-03/course-02-passing-event-data-to-triggers.md
+    prompt: 'A trigger resource has `metadata.generateName: report-`. A parameter writes
+      the event name `nightly` to `metadata.generateName`. The new object must have
+      a name that starts with `report-nightly`. Which operation does that?'
+    options:
+    - id: a
+      text: "`append`, which puts the new value after the old one."
+      explanation: Correct. The old value `report-` is followed by `nightly`.
+    - id: b
+      text: "`prepend`, which puts the new value before the old one."
+      explanation: This gives `nightlyreport-`.
+    - id: c
+      text: "`overwrite`, which keeps the old value and adds the new one."
+      explanation: Overwrite replaces the old value, so the result is `nightly`.
+    - id: d
+      text: No operation is needed, because the cluster merges both values.
+      explanation: The parameter writes one value to the path, and nothing merges them.
+    correct_option: a
+    explanation: The default operation overwrites. Append and prepend join the new value
+      to the old one, and append puts it at the end.
+  - id: ats063-010-q12
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Find the evidence when a trigger is refused by the API server
+    source_readings:
+    - sections/section-010/module-03/course-03-kubernetes-and-workflow-triggers.md
+    prompt: A Sensor uses the service account `event-trigger` and a Kubernetes trigger
+      that creates a ConfigMap. The webhook returns a normal response and the Sensor
+      pod is running, but no ConfigMap appears. The service account has no permission
+      on ConfigMaps. Where do you find the reason?
+    options:
+    - id: a
+      text: In the log of the EventSource pod, which reports every refused trigger.
+      explanation: The EventSource only publishes the event. It does not run triggers.
+    - id: b
+      text: In the log of the Sensor pod, which ran the trigger and received the refusal.
+      explanation: Correct. The Sensor pod uses the service account and reports the
+        error from the API server.
+    - id: c
+      text: In the response of the webhook, which carries the error of the trigger.
+      explanation: The sender gets a response when the event is accepted, before any
+        trigger runs.
+    - id: d
+      text: In the EventBus status, which lists failed deliveries.
+      explanation: The EventBus delivers the event. The refusal happens after the delivery.
+    correct_option: b
+    explanation: The trigger runs in the Sensor pod with the identity of the Sensor
+      service account. A refusal shows up there, and the sender never sees it.

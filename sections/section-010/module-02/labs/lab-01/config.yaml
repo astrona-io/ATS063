@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Secure A Webhook And Add A Calendar Event (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-lab-010-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: order-auth-configured
+      description: The event order of EventSource dispatch reads its token from the Secret dispatch-token, key token
+      type: file
+      source: validation/validate-order-auth-configured.sh
+      hint: "Add authSecret with name dispatch-token and key token under spec.webhook.order. Do not change the Secret."
+    - name: order-requires-token
+      description: A real request with the bearer token creates a Workflow, and requests with no token, a wrong token or no Bearer prefix create none
+      type: file
+      source: validation/validate-order-requires-token.sh
+      hint: "The header is Authorization with the value Bearer followed by the token. The controller replaces the EventSource pod after the change, so wait before you test."
+    - name: ticker-eventsource
+      description: EventSource ticker has a calendar event beat that fires at least once a minute and is deployed
+      type: file
+      source: validation/validate-ticker-eventsource.sh
+      hint: "Use spec.calendar.beat with interval 30s. A calendar EventSource needs no service."
+    - name: ticker-creates-workflows
+      description: Sensor ticker creates beat- Workflows on every tick and they succeed
+      type: file
+      source: validation/validate-ticker-creates-workflows.sh
+      hint: "The dependency is eventSourceName ticker and eventName beat. Use a k8s trigger with operation create, generateName beat-, and the service accounts event-trigger and workflow-runner."
+
+teardown:
+  keepCluster: false

@@ -1,31 +1,58 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Build A Dedicated EventBus (LAB). Graded against the live cluster.
 apiVersion: astrona.io/v1
 metadata:
-  name: ats-063-lab-020-01-01
+  name: ats-063-lab-020-01
   docs:
-    prerequisites: docs/prerequisites.md
-    examQuestion: question.md
-    caseStudy: docs/case-study.md
-    guide: solution.md
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
 runtime:
   type: kind
   kind:
     image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
     nodes:
       workers: 1
+
 bootstrap:
   init:
-  - name: seed-private-environment
-    type: file
-    source: bootstrap/setup.sh
-teardown:
-  keepCluster: false
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
 testing:
   init:
-  - name: reference-result
-    type: file
-    source: solution/apply.sh
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
 validation:
-  script:
-    name: verify-fields-and-live-evidence
-    type: file
-    source: validate.sh
+  scripts:
+    - name: audit-bus-config
+      description: EventBus audit is deployed with 3 JetStream replicas, and its merged stream configuration has maxAge 24h and maxMsgs 1000
+      type: file
+      source: validation/validate-audit-bus-config.sh
+      hint: "Put streamConfig under spec.jetstream. It is a YAML text, and the fields are maxAge and maxMsgs."
+    - name: audit-storage
+      description: Each of the three server pods of the bus audit has a bound 1Gi volume claim
+      type: file
+      source: validation/validate-audit-storage.sh
+      hint: "Add persistence with volumeSize 1Gi under spec.jetstream. The claims are named after the StatefulSet eventbus-audit-js."
+    - name: ledger-uses-audit
+      description: EventSource ledger and Sensor ledger both use the bus audit and are deployed
+      type: file
+      source: validation/validate-ledger-uses-audit.sh
+      hint: "Set eventBusName to audit in the spec of both objects. Without it they look for a bus named default."
+    - name: ledger-event-flows
+      description: A request to the webhook creates a ledger- Workflow that carries the message and reaches Succeeded
+      type: file
+      source: validation/validate-ledger-event-flows.sh
+      hint: "The EventSource has the event entry on port 12000 and the path /entry. The Sensor writes body.message into the first Workflow parameter."
+
+teardown:
+  keepCluster: false

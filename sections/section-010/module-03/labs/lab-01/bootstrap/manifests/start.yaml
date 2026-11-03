@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+---
+# shuttle sends test events from inside starfleet.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shuttle
+  namespace: starfleet
+spec:
+  restartPolicy: Never
+  containers:
+    - name: client
+      image: docker.io/curlimages/curl:8.22.0
+      command: ["sleep", "86400"]
+---
+# drifter sends test events from another namespace.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: drifter
+  namespace: outpost
+spec:
+  restartPolicy: Never
+  containers:
+    - name: client
+      image: docker.io/curlimages/curl:8.22.0
+      command: ["sleep", "86400"]

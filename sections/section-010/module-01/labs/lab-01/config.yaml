@@ -1,31 +1,63 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Build A Webhook Pipeline With Argo Events (LAB). Graded against the live cluster.
 apiVersion: astrona.io/v1
 metadata:
-  name: ats-063-lab-010-01-01
+  name: ats-063-lab-010-01
   docs:
-    prerequisites: docs/prerequisites.md
-    examQuestion: question.md
-    caseStudy: docs/case-study.md
-    guide: solution.md
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
 runtime:
   type: kind
   kind:
     image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
     nodes:
       workers: 1
+
 bootstrap:
   init:
-  - name: seed-private-environment
-    type: file
-    source: bootstrap/setup.sh
-teardown:
-  keepCluster: false
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
 testing:
   init:
-  - name: reference-result
-    type: file
-    source: solution/apply.sh
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
 validation:
-  script:
-    name: verify-fields-and-live-evidence
-    type: file
-    source: validate.sh
+  scripts:
+    - name: eventsource-ready
+      description: EventSource webhook has the event mission on POST /mission, port 12000, a Service and is deployed
+      type: file
+      source: validation/validate-eventsource-ready.sh
+      hint: "Put the event under spec.webhook.mission, set endpoint, method and port, and add spec.service so the Service webhook-eventsource-svc exists."
+    - name: sensor-ready
+      description: Sensor mission depends on webhook/mission and has a k8s create trigger for a Workflow
+      type: file
+      source: validation/validate-sensor-ready.sh
+      hint: "The dependency needs eventSourceName webhook and eventName mission. The trigger is k8s with operation create and a Workflow with generateName mission-. Set spec.template.serviceAccountName to event-trigger."
+    - name: event-creates-workflow
+      description: A real webhook request from the shuttle pod creates a Workflow whose message argument is the request message
+      type: file
+      source: validation/validate-event-creates-workflow.sh
+      hint: "Copy body.message into spec.arguments.parameters.0.value with a trigger parameter (dependencyName, dataKey, dest)."
+    - name: message-per-event
+      description: Two events create two Workflows with their own messages
+      type: file
+      source: validation/validate-message-per-event.sh
+      hint: "Use generateName, not name, so that every event creates a new object."
+    - name: workflow-succeeds
+      description: The created Workflow runs to the phase Succeeded
+      type: file
+      source: validation/validate-workflow-succeeds.sh
+      hint: "The Workflow must run as service account workflow-runner and use an image that exists, such as docker.io/library/busybox:1.37."
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,124 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: signals
+  namespace: starfleet
+spec:
+  jetstream:
+    version: 2.10.10
+    replicas: 3
+    persistence:
+      accessMode: ReadWriteOnce
+      volumeSize: 1Gi
+    streamConfig: |
+      maxAge: 12h
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: beacon
+  namespace: starfleet
+spec:
+  eventBusName: signals
+  replicas: 2
+  service:
+    ports:
+      - port: 12000
+        targetPort: 12000
+  webhook:
+    alert:
+      port: "12000"
+      endpoint: /alert
+      method: POST
+    ack:
+      port: "12000"
+      endpoint: /ack
+      method: POST
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: escalate
+  namespace: starfleet
+spec:
+  eventBusName: signals
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: alert-dep
+      eventSourceName: beacon
+      eventName: alert
+      filters:
+        data:
+          - path: body.level
+            type: string
+            value:
+              - critical
+    - name: ack-dep
+      eventSourceName: beacon
+      eventName: ack
+  triggers:
+    - template:
+        name: page
+        conditions: "alert-dep"
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: page-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: main
+                arguments:
+                  parameters:
+                    - name: site
+                      value: unset
+                templates:
+                  - name: main
+                    inputs:
+                      parameters:
+                        - name: site
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [sh, -c]
+                      args: ["echo page {{inputs.parameters.site}}"]
+          parameters:
+            - src:
+                dependencyName: alert-dep
+                dataKey: body.site
+              dest: spec.arguments.parameters.0.value
+    - template:
+        name: close
+        conditions: "ack-dep"
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: close-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: main
+                arguments:
+                  parameters:
+                    - name: site
+                      value: unset
+                templates:
+                  - name: main
+                    inputs:
+                      parameters:
+                        - name: site
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [sh, -c]
+                      args: ["echo close {{inputs.parameters.site}}"]
+          parameters:
+            - src:
+                dependencyName: ack-dep
+                dataKey: body.site
+              dest: spec.arguments.parameters.0.value

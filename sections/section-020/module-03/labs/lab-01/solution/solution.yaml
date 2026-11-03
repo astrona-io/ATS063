@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: relay
+  namespace: starfleet
+spec:
+  dependencies:
+    - name: gate
+      eventSourceName: gate
+      eventName: relay
+  triggers:
+    - template:
+        name: notify-beacon
+        http:
+          url: http://beacon.starfleet.svc:8080/cgi-bin/hook
+          method: POST
+          headers:
+            Content-Type: application/json
+            X-Fleet-Token: nova
+          payload:
+            - src:
+                dependencyName: gate
+                dataKey: body.id
+              dest: id
+      policy:
+        status:
+          allow:
+            - 200
+      atLeastOnce: true
+      retryStrategy:
+        steps: 3
+        duration: 1s
+      dlqTrigger:
+        atLeastOnce: true
+        template:
+          name: park-message
+          http:
+            url: http://beacon.starfleet.svc:8080/cgi-bin/dead
+            method: POST
+            headers:
+              Content-Type: application/json
+            payload:
+              - src:
+                  dependencyName: gate
+                  dataKey: body.id
+                dest: id

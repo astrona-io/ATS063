@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fix A Sensor That Never Fires (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-lab-010-03
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: launch-conditions
+      description: Sensor launch still depends on both events of EventSource fleet, and its trigger runs when either of them arrives
+      type: file
+      source: validation/validate-launch-conditions.sh
+      hint: "The default rule waits for all dependencies. Put conditions on the trigger with an or between the two dependency names."
+    - name: launch-either-event
+      description: A request to the event scout and a request to the event relay each create exactly one launch- Workflow
+      type: file
+      source: validation/validate-launch-either-event.sh
+      hint: "The expression is written with the dependency names, not the event names, and uses two vertical bars."
+    - name: launch-carries-ship
+      description: The Workflow parameter ship holds the ship from the request body, for a request to scout and for a request to relay
+      type: file
+      source: validation/validate-launch-carries-ship.sh
+      hint: "Add parameters under k8s that read body.ship. A parameter names one dependency, and the trigger can run for either, so one parameter is needed for each dependency. Do not set value on them."
+    - name: launch-workflow-succeeds
+      description: The launch- Workflows reach the phase Succeeded
+      type: file
+      source: validation/validate-launch-workflow-succeeds.sh
+      hint: "Do not change the Workflow service account or the image. If a Workflow does not finish, describe it."
+
+teardown:
+  keepCluster: false

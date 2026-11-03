@@ -1,139 +1,149 @@
----
-draft: true
-exam_objectives:
-- Understand Argo Event Components and Architecture
----
-# Connect EventSource EventBus And Sensor Solution
+# Solution
 
-Use a host shell with the private kubeconfig for this independent kind environment. A kubeconfig identifies the cluster and credentials used by kubectl, the Kubernetes command-line tool.
+Solve this lab on `terminal`. Each step ends with `astrona submit`. The `--keep` flag keeps the lab running so you can continue after a failed check.
+
+Start the lab if it is not running:
 
 ```sh
-export KUBECONFIG="$(astrona kubeconfig ats-063-lab-020-01-01)"
-test "$(kubectl config current-context)" = "kind-astro-ats-063-lab-020-01-01" || exit 1
-node_name="astro-ats-063-lab-020-01-01-control-plane"
-worker_name="astro-ats-063-lab-020-01-01-worker"
+astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-01/labs/lab-01
 ```
 
-Keep this connection selected. Host-level commands name only this environment's node containers. They do not operate on the host operating system.
-
-## Inspect And Explain
-
-The Events and Workflows controllers are installed. The exercise uses an internal webhook and event bus; no external sender is configured.
-
-Inspect the current objects before changing them:
+Look at the starting state. The namespace has no EventBus, no EventSource and no Sensor:
 
 ```sh
-kubectl -n starfleet get pods -o wide
-kubectl get nodes -o wide
+kubectl -n starfleet get eventbus,eventsources,sensors
 ```
 
-Create a three-member JetStream bus, webhook EventSource and Sensor. Distinguish ingestion, transport and trigger responsibilities by inspecting each resource and the actual parameterised execution.
+## Step 1: Create the EventBus audit
 
-Save this as `eventbus-default.yaml`:
+A JetStream bus is built from the `spec.jetstream` block. The `persistence` block makes each server pod request a claim, and `streamConfig` is a YAML text with the stream limits. Save this as `bus.yaml`:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: EventBus
 metadata:
-  name: default
+  name: audit
   namespace: starfleet
 spec:
   jetstream:
     version: 2.10.10
     replicas: 3
----
+    persistence:
+      accessMode: ReadWriteOnce
+      volumeSize: 1Gi
+    streamConfig: |
+      maxAge: 24h
+      maxMsgs: 1000
+```
+
+Apply it and wait until the controller reports it as deployed:
+
+```sh
+kubectl apply -f bus.yaml
+kubectl -n starfleet wait --for=condition=Deployed eventbus/audit --timeout=300s
+```
+
+Check the claims and the merged stream configuration. The status shows the controller defaults with your two values on top:
+
+```sh
+kubectl -n starfleet get pvc
+kubectl -n starfleet get eventbus audit -o jsonpath='{.status.config.jetstream.streamConfig}'
+```
+
+Then run `astrona submit`. The checks for the bus and its storage pass, and the checks for the pipeline still fail.
+
+## Step 2: Create the EventSource and the Sensor with eventBusName
+
+Both objects look for a bus named `default` unless `eventBusName` says otherwise. Without it they stay without pods, because no bus named `default` exists. Save this as `pipeline.yaml`:
+
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
-  name: webhook
+  name: ledger
   namespace: starfleet
 spec:
+  eventBusName: audit
   service:
     ports:
-    - port: 12000
-      targetPort: 12000
+      - port: 12000
+        targetPort: 12000
   webhook:
-    mission:
-      port: '12000'
-      endpoint: /mission
+    entry:
+      port: "12000"
+      endpoint: /entry
       method: POST
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: mission
+  name: ledger
   namespace: starfleet
 spec:
+  eventBusName: audit
   template:
     serviceAccountName: event-trigger
   dependencies:
-  - name: request
-    eventSourceName: webhook
-    eventName: mission
+    - name: entry-dep
+      eventSourceName: ledger
+      eventName: entry
   triggers:
-  - template:
-      name: launch
-      k8s:
-        operation: create
-        source:
-          resource:
-            apiVersion: argoproj.io/v1alpha1
-            kind: Workflow
-            metadata:
-              name: event-mission
-              namespace: starfleet
-            spec:
-              serviceAccountName: workflow-runner
-              entrypoint: produce
-              activeDeadlineSeconds: 180
-              templates:
-              - name: produce
-                container:
-                  image: docker.io/library/python:3.13-alpine
-                  command:
-                  - python
-                  - -c
-                  args:
-                  - open("/tmp/result","w").write("{{workflow.parameters.event-id}}")
-                outputs:
+    - template:
+        name: record-entry
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: ledger-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: main
+                arguments:
                   parameters:
-                  - name: result
-                    valueFrom:
-                      path: /tmp/result
-              arguments:
-                parameters:
-                - name: event-id
-                  value: unset
-        parameters:
-        - src:
-            dependencyName: request
-            dataKey: body.id
-          dest: spec.arguments.parameters.0.value
+                    - name: message
+                      value: unset
+                templates:
+                  - name: main
+                    inputs:
+                      parameters:
+                        - name: message
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [sh, -c]
+                      args: ["echo entry={{inputs.parameters.message}}"]
+          parameters:
+            - src:
+                dependencyName: entry-dep
+                dataKey: body.message
+              dest: spec.arguments.parameters.0.value
 ```
 
-Apply the scoped correction:
+The parameter copies `body.message` from the event into the first Workflow parameter. The position `0` counts from zero. Apply it and wait for both objects:
 
 ```sh
-kubectl apply -f eventbus-default.yaml
+kubectl apply -f pipeline.yaml
+kubectl -n starfleet wait --for=condition=Deployed eventsource/ledger --timeout=180s
+kubectl -n starfleet wait --for=condition=Deployed sensor/ledger --timeout=180s
 ```
 
-## Verify The Result
+## Step 3: Send an event
 
-Observe the actual result. A denied request returns a nonzero status when the denial works, so run it separately from a shell sequence that stops on error. Status convergence and a successful request establish different parts of the result.
+The EventSource and Sensor pods need a short time to connect to the bus. Wait for them and send a request:
 
 ```sh
-kubectl -n starfleet wait --for=jsonpath='{.status.conditions[?(@.type=="Deployed")].status}'=True eventbus/default --timeout=300s
-kubectl -n starfleet wait --for=jsonpath='{.status.conditions[?(@.type=="Deployed")].status}'=True eventsource/webhook --timeout=180s
-kubectl -n starfleet wait --for=jsonpath='{.status.conditions[?(@.type=="Deployed")].status}'=True sensor/mission --timeout=180s
-kubectl -n starfleet exec shuttle -- python -c 'import urllib.request,json; r=urllib.request.Request('"'"'http://webhook-eventsource-svc:12000/mission'"'"',data=json.dumps({'"'"'id'"'"':'"'"'mission-complete'"'"'}).encode(),headers={'"'"'Content-Type'"'"':'"'"'application/json'"'"'}); print(urllib.request.urlopen(r,timeout=5).status)'
-kubectl -n starfleet wait --for=jsonpath='{.status.phase}'=Succeeded workflow/event-mission --timeout=240s
+kubectl -n starfleet wait --for=condition=Ready pod -l eventsource-name=ledger --timeout=180s
+kubectl -n starfleet wait --for=condition=Ready pod -l sensor-name=ledger --timeout=180s
+kubectl -n starfleet exec shuttle -- curl -s -X POST -H 'Content-Type: application/json' -d '{"message":"hello"}' http://ledger-eventsource-svc:12000/entry
+kubectl -n starfleet get workflows
 ```
 
-Deliver a webhook event and execute a Workflow using its data. The commands above deliberately target one environment. Keep its remaining components available so an unrelated failure cannot stand in for the required denial or correction. No example command output is presented as evidence of a completed run. A matching field alone does not establish that a process used it or that a controller reconciled it.
+A Workflow named `ledger-...` appears and reaches `Succeeded`. Run `astrona submit` again. All checks pass.
 
-After recording your result, remove the independent lab with `astrona destroy ats-063-lab-020-01-01`.
+If the Sensor does not create Workflows, read its log with `kubectl -n starfleet logs -l sensor-name=ledger`. A refusal from the Kubernetes API or a wrong dependency name shows there.
 
-## Common pitfalls
+## Why this works
 
-> [!WARNING]
-> Confirm the private context and exact node names before a change. Check the stated scope and live result. Do not change unrelated components to hide the original fault.
+The bus is a namespaced object, and an EventSource or a Sensor connects to the bus that its `eventBusName` names. The field defaults to `default`, so a bus with another name is used only when both ends say so. The persistence block turns the `emptyDir` of each server pod into a claim, and the stream configuration is merged over the controller defaults, so only the two changed limits need to be written.

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: harbor-token
+  namespace: starfleet
+type: Opaque
+stringData:
+  token: dock-9917-orbit

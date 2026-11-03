@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fix A Sensor That Admits The Wrong Ships (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-lab-020-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: dock-filter
+      description: Docking requests with class scout and fuel of at least 20 are accepted, and requests with less fuel, another class or a longer class name are dropped
+      type: file
+      source: validation/validate-dock-filter.sh
+      hint: "Paths of a webhook body start with body. A string value is a regular expression that matches anywhere, and a comparator of at least needs the right symbol."
+    - name: pair-conditions
+      description: The trigger needs both a docking request and a clearance, in either order, and starts exactly one Workflow for each pair
+      type: file
+      source: validation/validate-pair-conditions.sh
+      hint: "The expression uses the dependency names, not the event names, and joins them with two ampersands."
+    - name: ship-uppercase
+      description: The Workflow parameter ship holds the ship name from the request in capitals
+      type: file
+      source: validation/validate-ship-uppercase.sh
+      hint: "Add a transform to the dock dependency. The jq operator for changing a value in place is the pipe and equals sign, and ascii_upcase changes the case."
+    - name: workflow-succeeds
+      description: Sensor gatekeeper still has two dependencies, and the Workflow it creates reaches Succeeded
+      type: file
+      source: validation/validate-workflow-succeeds.sh
+      hint: "Keep both dependencies. After a change, wait for the new Sensor pod to be ready before you send test events."
+
+teardown:
+  keepCluster: false

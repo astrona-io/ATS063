@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Build The Harbor Pipeline (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-capstone-010
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: harbor-eventsource
+      description: EventSource harbor has the events arrival and departure on port 12000, both protected by the Secret harbor-token, and is deployed
+      type: file
+      source: validation/validate-harbor-eventsource.sh
+      hint: "Two entries under spec.webhook, each with authSecret name harbor-token and key token."
+    - name: harbor-sensor
+      description: Sensor logbook depends on both events of harbor, runs its trigger on either of them, and is deployed
+      type: file
+      source: validation/validate-harbor-sensor.sh
+      hint: "The default rule waits for all dependencies. Use conditions with an or over the dependency names."
+    - name: harbor-token-enforced
+      description: Requests without a token or with a wrong token create no Workflow, and requests with the token are accepted
+      type: file
+      source: validation/validate-harbor-token-enforced.sh
+      hint: "The header is Authorization with the value Bearer followed by the token from the Secret."
+    - name: harbor-movements-recorded
+      description: Each valid request creates one logbook- Workflow whose parameters hold the ship from the body and the name of the event, and the Workflow succeeds
+      type: file
+      source: validation/validate-harbor-movements-recorded.sh
+      hint: "One parameter for each dependency and each value. Read body.ship from the data and subject from the context."
+
+teardown:
+  keepCluster: false

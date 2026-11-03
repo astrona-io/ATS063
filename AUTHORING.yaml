@@ -1,5 +1,4 @@
 version: 1
-approval: CAPA requested 2026-10-11; established reading-only scope
 course:
   id: ATS063
   certification:
@@ -9,53 +8,44 @@ course:
     domain: Argo Events
     weight: 12
     competencies:
-    - Understand Argo Events Fundamentals
-    - Understand Argo Event Components and Architecture
+      - Understand Argo Events Fundamentals
+      - Understand Argo Event Components and Architecture
 defaults:
-  playground: false
-  module_lab: false
-  capstone: false
-  section_quiz: false
+  playground: true
+  module_lab: true
+  capstone: true
+  section_quiz: true
   final_quiz: true
-assessment_format: YAML question banks v1, registered in assessments/index.yaml
+versions:
+  argo_events: 1.9.6
+  argo_workflows: 3.7.3
+  kubernetes: "1.35"
+status:
+  runtime_verified: false
+  note: Labs and playgrounds were built from the upstream v1.9.6 documentation and source and checked statically only.
 sections:
-- id: section-010
-  title: Understand Argo Events Fundamentals
-  curriculum_item: Understand Argo Events Fundamentals
-  capstone: false
-  section_quiz: false
-  modules:
-  - id: module-01
-    title: Event-Driven Triggers And Safe Repeated Actions
-    objectives:
-    - Explain why external events can initiate Kubernetes work.
-    - Distinguish event ingestion from task execution.
-    - Define dependency filters and trigger input mapping.
-    - Evaluate authentication, retries and idempotent side effects.
-    outline:
-    - Event-Driven Triggers And Safe Repeated Actions
-    playground: false
-    module_lab: false
-    sources:
-    - reading: sections/section-010/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
-      adapted_from: null
-- id: section-020
-  title: Understand Argo Event Components and Architecture
-  curriculum_item: Understand Argo Event Components and Architecture
-  capstone: false
-  section_quiz: false
-  modules:
-  - id: module-01
-    title: EventSource, EventBus And Sensor Architecture
-    objectives:
-    - Assign ingestion, transport and dependency evaluation responsibilities.
-    - Explain event envelopes and dependency names.
-    - Distinguish controller resources from their active Pods and services.
-    - Diagnose source, bus, Sensor and trigger failures separately.
-    outline:
-    - EventSource, EventBus And Sensor Architecture
-    playground: false
-    module_lab: false
-    sources:
-    - reading: sections/section-020/module-01/course-01-eventsource-eventbus-and-sensor-architecture.md
-      adapted_from: null
+  - id: section-010
+    title: Understand Argo Events Fundamentals
+    modules:
+      - id: module-01
+        title: Event-Driven Automation And The Argo Events Flow
+      - id: module-02
+        title: Receiving Events With EventSources
+      - id: module-03
+        title: Reacting With Sensors And Triggers
+    capstone: Build The Harbor Pipeline
+    quiz: sections/section-010/quiz.yaml
+  - id: section-020
+    title: Understand Argo Event Components and Architecture
+    modules:
+      - id: module-01
+        title: The EventBus And JetStream
+      - id: module-02
+        title: "Sensor Evaluation: Filters, Conditions And Transforms"
+      - id: module-03
+        title: Trigger Types, Policies And Delivery Guarantees
+      - id: module-04
+        title: The Controller, Installation And High Availability
+    capstone: Build The Escalation Pipeline
+    quiz: sections/section-020/quiz.yaml
+final_quiz: sections/final-domain-quiz.yaml

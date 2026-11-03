@@ -1,8 +1,27 @@
+# Course manifest for ATS063 - Argo Events (Certified Argo Project Associate).
+#
+# One entry per section under `modules:`. Each section lists, in order: its
+# README, then for each module the landing page (course.md), its parts
+# (course-0N-*.md), and right after the parts the lab's question.md reading and
+# the `type: lab` entry. The module's wrap-up page comes last. The section
+# capstone and the section quiz close the section. Playgrounds are not listed:
+# the landing page's playground marker shows them. solution.md is never listed.
+#
+# Every `path:` is relative to this file.
+
 training:
   id: ATS063
-  title: 'CAPA: Argo Events'
-  description: 'Detailed reading material and reusable YAML knowledge checks for CAPA:
-    Argo Events. Technical content remains draft. Private playgrounds and draft independent labs are included.'
+  title: "CAPA: Argo Events"
+  description: >
+    Training material covering the Argo Events domain of the Certified Argo
+    Project Associate (CAPA) exam: the event flow from source to trigger,
+    webhook, calendar and resource EventSources, Sensors with dependencies,
+    filters, conditions and parameters, Kubernetes and Workflow triggers, the
+    JetStream EventBus, trigger policies and delivery guarantees, and the
+    controller with installation and high availability. Each module pairs a
+    layered reader with an ungraded playground and a graded lab. Each section
+    closes with an integration capstone. Targets Argo Events 1.9.6.
+
   certification:
     name: Certified Argo Project Associate
     code: CAPA
@@ -10,99 +29,390 @@ training:
     domain: Argo Events
     weight: 12
     competencies:
-    - Understand Argo Events Fundamentals
-    - Understand Argo Event Components and Architecture
+      - "Understand Argo Events Fundamentals"
+      - "Understand Argo Event Components and Architecture"
+
 modules:
-- id: module-intro
-  title: Introduction
-  description: Audience, reading method and review process.
-  content:
-  - type: reading
-    title: Introduction
-    path: sections/intro/README.md
-  - type: reading
-    title: Welcome To The Course
-    path: sections/intro/course-01-welcome.md
-  - type: reading
-    title: Get Your Machine Ready
-    path: sections/intro/course-02-get-your-machine-ready.md
-  - type: reading
-    title: How This Course Is Made
-    path: sections/intro/course-03-how-this-course-is-made.md
-- id: module-010
-  title: Understand Argo Events Fundamentals
-  description: Developed reading and reasoning for Understand Argo Events Fundamentals.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Understand Argo Events Fundamentals
-    path: sections/section-010/README.md
-  - type: reading
-    title: Event-Driven Triggers And Safe Repeated Actions
-    path: sections/section-010/module-01/course.md
-  - type: reading
-    title: Event-Driven Triggers And Safe Repeated Actions
-    path: sections/section-010/module-01/course-01-event-driven-triggers-and-safe-repeated-actions.md
-  - type: reading
-    title: Trigger A Workflow From An Event — Task
-    path: sections/section-010/module-01/labs/lab-01/question.md
-  - type: lab
-    title: Trigger A Workflow From An Event
-    path: sections/section-010/module-01/labs/lab-01
-    difficulty: intermediate
-    estimated_duration: 25m
-    topic: argo-events
-    task_kind: build
-    learning_goals:
-    - Deliver a webhook event and execute a Workflow using its data.
-    tags:
-    - capa
-    - argo-events
-  - type: reading
-    title: Trigger A Workflow From An Event — Solution
-    path: sections/section-010/module-01/labs/lab-01/solution.md
-  - type: reading
-    title: 'Guided Practice: Trigger A Workflow From An Event'
-    path: sections/section-010/module-01/course-02-guided-practice.md
-  - type: reading
-    title: Summary
-    path: sections/section-010/module-01/course-03-summary.md
-- id: module-020
-  title: Understand Argo Event Components and Architecture
-  description: Developed reading and reasoning for Understand Argo Event Components
-    and Architecture.
-  maturity: alpha
-  content:
-  - type: reading
-    title: Understand Argo Event Components and Architecture
-    path: sections/section-020/README.md
-  - type: reading
-    title: EventSource, EventBus And Sensor Architecture
-    path: sections/section-020/module-01/course.md
-  - type: reading
-    title: EventSource, EventBus And Sensor Architecture
-    path: sections/section-020/module-01/course-01-eventsource-eventbus-and-sensor-architecture.md
-  - type: reading
-    title: Connect EventSource EventBus And Sensor — Task
-    path: sections/section-020/module-01/labs/lab-01/question.md
-  - type: lab
-    title: Connect EventSource EventBus And Sensor
-    path: sections/section-020/module-01/labs/lab-01
-    difficulty: intermediate
-    estimated_duration: 25m
-    topic: argo-events
-    task_kind: build
-    learning_goals:
-    - Deliver a webhook event and execute a Workflow using its data.
-    tags:
-    - capa
-    - argo-events
-  - type: reading
-    title: Connect EventSource EventBus And Sensor — Solution
-    path: sections/section-020/module-01/labs/lab-01/solution.md
-  - type: reading
-    title: 'Guided Practice: Connect EventSource EventBus And Sensor'
-    path: sections/section-020/module-01/course-02-guided-practice.md
-  - type: reading
-    title: Summary
-    path: sections/section-020/module-01/course-03-summary.md
+
+  - id: module-intro
+    title: "Introduction"
+    description: >
+      Start here. What this course trains you to do, how to get your machine
+      ready with the astrona command-line tool, and how the content is written
+      and checked.
+
+    content:
+      - type: reading
+        title: Introduction
+        path: sections/intro/README.md
+      - type: reading
+        title: "Welcome To The Course"
+        path: sections/intro/course-01-welcome.md
+      - type: reading
+        title: "Get Your Machine Ready"
+        path: sections/intro/course-02-get-your-machine-ready.md
+      - type: reading
+        title: "How This Course Is Made"
+        path: sections/intro/course-03-how-this-course-is-made.md
+
+  - id: module-010
+    title: "Understand Argo Events Fundamentals"
+    description: >
+      Makes the reader able to explain and build the Argo Events flow: how an
+      event enters the cluster through an EventSource, how a Sensor decides to
+      act, and how a trigger creates a Kubernetes object or a Workflow with
+      data from the event.
+
+    content:
+      - type: reading
+        title: Section Overview
+        path: sections/section-010/README.md
+
+      - type: reading
+        title: "Event-Driven Automation And The Argo Events Flow"
+        path: sections/section-010/module-01/course.md
+      - type: reading
+        title: "Events And The Four Stages"
+        path: sections/section-010/module-01/course-01-events-and-the-four-stages.md
+      - type: reading
+        title: "Building The First Pipeline"
+        path: sections/section-010/module-01/course-02-building-the-first-pipeline.md
+      - type: reading
+        title: "Following One Event"
+        path: sections/section-010/module-01/course-03-following-one-event.md
+      - type: reading
+        title: Question
+        path: sections/section-010/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Build A Webhook Pipeline With Argo Events Lab"
+        path: sections/section-010/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: event-driven-automation
+        task_kind: build
+        tags: [argo-events, eventbus, eventsource, sensor, webhook, trigger, workflow]
+        learning_goals:
+          - Create a webhook EventSource with a Service and a Sensor that depends on its event
+          - Create an Argo Workflow from an event with a k8s trigger and copy a field of the request into it
+          - Send a real request and confirm that every event creates its own Workflow
+        resources:
+          - name: "Argo Events EventSource concepts"
+            url: https://argoproj.github.io/argo-events/concepts/event_source/
+          - name: "Argo Events Sensor concepts"
+            url: https://argoproj.github.io/argo-events/concepts/sensor/
+          - name: "Argo Events webhook EventSource"
+            url: https://argoproj.github.io/argo-events/eventsources/setup/webhook/
+      - type: reading
+        title: Summary
+        path: sections/section-010/module-01/course-04-summary.md
+
+      - type: reading
+        title: "Receiving Events With EventSources"
+        path: sections/section-010/module-02/course.md
+      - type: reading
+        title: "Webhook Endpoints And Access"
+        path: sections/section-010/module-02/course-01-webhook-endpoints-and-access.md
+      - type: reading
+        title: "Calendar Events From Time"
+        path: sections/section-010/module-02/course-02-calendar-events-from-time.md
+      - type: reading
+        title: "Resource Events From The Cluster"
+        path: sections/section-010/module-02/course-03-resource-events-from-the-cluster.md
+      - type: reading
+        title: Question
+        path: sections/section-010/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Secure A Webhook And Add A Calendar Event Lab"
+        path: sections/section-010/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 30m
+        topic: eventsources
+        task_kind: build
+        tags: [argo-events, eventsource, webhook, authsecret, calendar, sensor, workflow]
+        learning_goals:
+          - Require a bearer token from a Secret on one event of a webhook EventSource
+          - Create a calendar EventSource with an interval
+          - Connect a Sensor to the calendar event and create Workflows on every tick
+        resources:
+          - name: "Argo Events webhook authentication"
+            url: https://argoproj.github.io/argo-events/eventsources/webhook-authentication/
+          - name: "Argo Events calendar EventSource"
+            url: https://argoproj.github.io/argo-events/eventsources/setup/calendar/
+          - name: "Argo Events resource EventSource"
+            url: https://argoproj.github.io/argo-events/eventsources/setup/resource/
+          - name: "Argo Events EventSource services"
+            url: https://argoproj.github.io/argo-events/eventsources/services/
+      - type: reading
+        title: Summary
+        path: sections/section-010/module-02/course-04-summary.md
+
+      - type: reading
+        title: "Reacting With Sensors And Triggers"
+        path: sections/section-010/module-03/course.md
+      - type: reading
+        title: "Sensor Anatomy And Dependencies"
+        path: sections/section-010/module-03/course-01-sensor-anatomy-and-dependencies.md
+      - type: reading
+        title: "Passing Event Data To Triggers"
+        path: sections/section-010/module-03/course-02-passing-event-data-to-triggers.md
+      - type: reading
+        title: "Kubernetes And Workflow Triggers"
+        path: sections/section-010/module-03/course-03-kubernetes-and-workflow-triggers.md
+      - type: reading
+        title: Question
+        path: sections/section-010/module-03/labs/lab-01/question.md
+      - type: lab
+        title: "Fix A Sensor That Never Fires Lab"
+        path: sections/section-010/module-03/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 30m
+        topic: sensors
+        task_kind: fix
+        tags: [argo-events, sensor, trigger, conditions, parameters, workflow]
+        learning_goals:
+          - Run a trigger on either of two dependencies with a condition
+          - Copy a field from the event body into a Workflow parameter
+          - Write one parameter for each dependency when a Sensor uses an or condition
+        resources:
+          - name: "Argo Events trigger conditions"
+            url: https://argoproj.github.io/argo-events/sensors/trigger-conditions/
+          - name: "Argo Events parameterization tutorial"
+            url: https://argoproj.github.io/argo-events/tutorials/02-parameterization/
+          - name: "Argo Events Kubernetes object trigger"
+            url: https://argoproj.github.io/argo-events/sensors/triggers/k8s-object-trigger/
+          - name: "Argo Events Argo Workflow trigger"
+            url: https://argoproj.github.io/argo-events/sensors/triggers/argo-workflow/
+      - type: reading
+        title: Summary
+        path: sections/section-010/module-03/course-04-summary.md
+
+      - type: reading
+        title: Question
+        path: sections/section-010/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Build The Harbor Pipeline Capstone"
+        path: sections/section-010/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 60m
+        topic: argo-events
+        task_kind: build
+        tags: [argo-events, eventsource, webhook, authsecret, sensor, conditions, parameters, workflow]
+        learning_goals:
+          - Build a webhook EventSource with two events that require a bearer token
+          - Write a Sensor that runs one trigger on either of two events
+          - Copy a field of the body and the event name into Workflow parameters
+        resources:
+          - name: "Argo Events EventSource"
+            url: https://argoproj.github.io/argo-events/concepts/event_source/
+          - name: "Argo Events webhook EventSource"
+            url: https://argoproj.github.io/argo-events/eventsources/setup/webhook/
+          - name: "Argo Events trigger conditions"
+            url: https://argoproj.github.io/argo-events/sensors/trigger-conditions/
+          - name: "Argo Events parameterization tutorial"
+            url: https://argoproj.github.io/argo-events/tutorials/02-parameterization/
+      - type: quiz
+        title: "Knowledge Check: Understand Argo Events Fundamentals"
+        path: sections/section-010/quiz.yaml
+        pass_score: 70
+
+  - id: module-020
+    title: "Understand Argo Event Components and Architecture"
+    description: >
+      Makes the reader able to configure and operate the components behind
+      the flow: the JetStream EventBus, how a Sensor filters and combines
+      events, trigger types with retry and delivery settings, and the
+      controller with installation, high availability and scaling.
+
+    content:
+      - type: reading
+        title: Section Overview
+        path: sections/section-020/README.md
+
+      - type: reading
+        title: "The EventBus And JetStream"
+        path: sections/section-020/module-01/course.md
+      - type: reading
+        title: "The Bus In The Cluster"
+        path: sections/section-020/module-01/course-01-the-bus-in-the-cluster.md
+      - type: reading
+        title: "Streams, Subjects And Delivery"
+        path: sections/section-020/module-01/course-02-streams-subjects-and-delivery.md
+      - type: reading
+        title: "Storage, Settings And External Buses"
+        path: sections/section-020/module-01/course-03-storage-settings-and-external-buses.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-01/labs/lab-01/question.md
+      - type: lab
+        title: "Build A Dedicated EventBus Lab"
+        path: sections/section-020/module-01/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 35m
+        topic: eventbus
+        task_kind: build
+        tags: [argo-events, eventbus, jetstream, persistence, streamconfig]
+        learning_goals:
+          - Create a JetStream EventBus with replicas, persistence and stream limits
+          - Point an EventSource and a Sensor at a bus with eventBusName
+          - Read the merged stream configuration from the status of the bus
+        resources:
+          - name: "Argo Events EventBus"
+            url: https://argoproj.github.io/argo-events/eventbus/eventbus/
+          - name: "Argo Events JetStream EventBus"
+            url: https://argoproj.github.io/argo-events/eventbus/jetstream/
+          - name: "Argo Events EventBus concepts"
+            url: https://argoproj.github.io/argo-events/concepts/eventbus/
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-01/course-04-summary.md
+
+      - type: reading
+        title: "Sensor Evaluation: Filters, Conditions And Transforms"
+        path: sections/section-020/module-02/course.md
+      - type: reading
+        title: "Filters On A Dependency"
+        path: sections/section-020/module-02/course-01-filters-on-a-dependency.md
+      - type: reading
+        title: "Trigger Conditions And Reset"
+        path: sections/section-020/module-02/course-02-trigger-conditions-and-reset.md
+      - type: reading
+        title: "Transforming Event Data"
+        path: sections/section-020/module-02/course-03-transformation.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-02/labs/lab-01/question.md
+      - type: lab
+        title: "Fix A Sensor That Admits The Wrong Ships Lab"
+        path: sections/section-020/module-02/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 30m
+        topic: sensor-evaluation
+        task_kind: fix
+        tags: [argo-events, sensor, filters, trigger-conditions, transform]
+        learning_goals:
+          - Repair data filters with the right path, comparator and anchored regular expressions
+          - Write trigger conditions with dependency names so that two events must both arrive
+          - Transform event data with jq before it is filtered and passed to a parameter
+        resources:
+          - name: "Argo Events filters"
+            url: https://argoproj.github.io/argo-events/sensors/filters/intro/
+          - name: "Argo Events data filter"
+            url: https://argoproj.github.io/argo-events/sensors/filters/data/
+          - name: "Argo Events trigger conditions"
+            url: https://argoproj.github.io/argo-events/sensors/trigger-conditions/
+          - name: "Argo Events transformation"
+            url: https://argoproj.github.io/argo-events/sensors/transform/
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-02/course-04-summary.md
+
+      - type: reading
+        title: "Trigger Types, Policies And Delivery Guarantees"
+        path: sections/section-020/module-03/course.md
+      - type: reading
+        title: "Other Trigger Types"
+        path: sections/section-020/module-03/course-01-other-trigger-types.md
+      - type: reading
+        title: "Trigger Policy And Retry"
+        path: sections/section-020/module-03/course-02-trigger-policy-and-retry.md
+      - type: reading
+        title: "Delivery Guarantees"
+        path: sections/section-020/module-03/course-03-delivery-guarantees.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-03/labs/lab-01/question.md
+      - type: lab
+        title: "Make The Relay Deliver Lab"
+        path: sections/section-020/module-03/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 35m
+        topic: sensor-triggers
+        task_kind: troubleshoot
+        tags: [argo-events, sensor, trigger, retrystrategy, dlqtrigger, atleastonce]
+        learning_goals:
+          - Find why an HTTP trigger loses messages without reporting an error
+          - Define failure with policy.status and repeat it with retryStrategy and atLeastOnce
+          - Park an undeliverable message with a dlqTrigger
+        resources:
+          - name: "Argo Events triggers"
+            url: https://argoproj.github.io/argo-events/sensors/triggers/http-trigger/
+          - name: "Argo Events more about sensors and triggers"
+            url: https://argoproj.github.io/argo-events/sensors/more-about-sensors-and-triggers/
+          - name: "Argo Events trigger policy"
+            url: https://argoproj.github.io/argo-events/sensors/trigger-policy/
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-03/course-04-summary.md
+
+      - type: reading
+        title: "The Controller, Installation And High Availability"
+        path: sections/section-020/module-04/course.md
+      - type: reading
+        title: "The Controller And Installation"
+        path: sections/section-020/module-04/course-01-the-controller-and-installation.md
+      - type: reading
+        title: "EventSource And Sensor Pod High Availability"
+        path: sections/section-020/module-04/course-02-eventsource-and-sensor-pod-high-availability.md
+      - type: reading
+        title: "Scaling And Operations"
+        path: sections/section-020/module-04/course-03-scaling-and-operations.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-04/labs/lab-01/question.md
+      - type: lab
+        title: "Restore A Highly Available Calendar EventSource"
+        path: sections/section-020/module-04/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 35m
+        topic: high-availability
+        task_kind: fix
+        tags: [argo-events, controller, high-availability, leader-election, resources]
+        learning_goals:
+          - Find why a replicated calendar EventSource has no leader and publishes nothing
+          - Grant the Role for Leases to a dedicated ServiceAccount used through spec.template
+          - Set replicas and container resources on an EventSource and a Sensor through the spec
+        resources:
+          - name: "Argo Events EventSource high availability"
+            url: https://argoproj.github.io/argo-events/eventsources/ha/
+          - name: "Argo Events Sensor high availability"
+            url: https://argoproj.github.io/argo-events/sensors/ha/
+          - name: "Argo Events installation"
+            url: https://argoproj.github.io/argo-events/installation/
+          - name: "Argo Events EventSource concepts"
+            url: https://argoproj.github.io/argo-events/concepts/event_source/
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-04/course-04-summary.md
+
+      - type: reading
+        title: Question
+        path: sections/section-020/capstone/labs/lab-01/question.md
+      - type: lab
+        title: "Build The Escalation Pipeline Capstone"
+        path: sections/section-020/capstone/labs/lab-01
+        difficulty: advanced
+        estimated_duration: 75m
+        topic: architecture
+        task_kind: build
+        tags: [argo-events, eventbus, jetstream, persistence, streamconfig, replicas, filters, conditions]
+        learning_goals:
+          - Create a JetStream EventBus with persistence and a stream limit
+          - Run a webhook EventSource with two pods on a named bus
+          - Write a Sensor with a data filter and two triggers that each name one dependency
+        resources:
+          - name: "Argo Events JetStream EventBus"
+            url: https://argoproj.github.io/argo-events/eventbus/jetstream/
+          - name: "Argo Events EventSource high availability"
+            url: https://argoproj.github.io/argo-events/eventsources/ha/
+          - name: "Argo Events data filter"
+            url: https://argoproj.github.io/argo-events/sensors/filters/data/
+          - name: "Argo Events trigger conditions"
+            url: https://argoproj.github.io/argo-events/sensors/trigger-conditions/
+      - type: quiz
+        title: "Knowledge Check: Understand Argo Event Components and Architecture"
+        path: sections/section-020/quiz.yaml
+        pass_score: 70
+      - type: quiz
+        title: "Final Knowledge Check: Argo Events"
+        path: sections/final-domain-quiz.yaml
+        pass_score: 70

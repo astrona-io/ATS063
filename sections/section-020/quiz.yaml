@@ -1,0 +1,362 @@
+# Knowledge check for section 020. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats063-020
+course_id: ATS063
+exam_code: CAPA
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-020
+  title: "Understand Argo Event Components and Architecture"
+questions:
+  - id: ats063-020-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: Explain what an EventSource or Sensor does when it names an
+      EventBus that does not exist
+    source_readings:
+    - sections/section-020/module-01/course-01-the-bus-in-the-cluster.md
+    prompt: 'In the namespace `starfleet` the only EventBus is named `default`. A Sensor
+      is created there with `spec.eventBusName: audit`. What happens?'
+    options:
+    - id: a
+      text: The controller creates a bus named `audit` with default settings.
+      explanation: The controller never creates a bus for an EventSource or a Sensor.
+    - id: b
+      text: The Sensor gets no pod and reports the missing bus in its status, because
+        it connects only to the bus it names.
+      explanation: Correct. The Sensor does not fall back to `default`. It waits until
+        a bus named `audit` exists.
+    - id: c
+      text: The Sensor falls back to the bus `default`, because only one bus exists.
+      explanation: There is no fallback. The field selects one bus by name.
+    - id: d
+      text: The Sensor starts and keeps its events in memory until the bus appears.
+      explanation: Without a bus the Sensor has nothing to read from, and no pod starts.
+    correct_option: b
+    explanation: The field `eventBusName` selects a bus in the same namespace. If that
+      bus does not exist, the object is not deployed.
+  - id: ats063-020-q02
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Derive the JetStream subject of an event and the consumer layout
+      of Sensors
+    source_readings:
+    - sections/section-020/module-01/course-02-streams-subjects-and-delivery.md
+    prompt: A webhook EventSource named `gateway` has an event named `alpha`. Two Sensors
+      depend on it. How is the event stored and delivered?
+    options:
+    - id: a
+      text: It is stored on the subject `gateway.alpha`, and the two Sensors share one
+        consumer so that only one of them receives it.
+      explanation: The subject starts with the stream name, and each Sensor has its
+        own consumer.
+    - id: b
+      text: It is stored in a stream named `gateway`, and each Sensor reads it with
+        a push subscription.
+      explanation: There is one stream named `default` for the whole bus.
+    - id: c
+      text: It is stored in the stream `default` on the subject `default.gateway.alpha`,
+        and the two Sensors share one durable consumer, so each event goes to only one
+        of them.
+      explanation: The subject and the stream are right, but the Sensors do not share
+        a consumer. Each has its own, so both receive the event.
+    - id: d
+      text: It is stored in the stream `default` on the subject `default.gateway.alpha`,
+        and each Sensor has its own durable consumer, so both receive a copy.
+      explanation: Correct. Durable consumers remember the position of each Sensor independently.
+    correct_option: d
+    explanation: All events of a bus go into the stream `default`. The subject is `default.<eventsource
+      name>.<event name>`, and each Sensor reads with its own durable consumers.
+  - id: ats063-020-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Choose the field that limits stream age and the effect of missing
+      persistence
+    source_readings:
+    - sections/section-020/module-01/course-03-storage-settings-and-external-buses.md
+    prompt: A team wants the bus to drop messages older than 24 hours and to keep its
+      data when a server pod is replaced. Which configuration does this?
+    options:
+    - id: a
+      text: "`streamConfig` with `maxAge: 24h` and `persistence` with a `volumeSize`."
+      explanation: Correct. The stream limit belongs to `streamConfig`, and storage
+        that survives a pod belongs to `persistence`.
+    - id: b
+      text: "`settings` with `maxAge: 24h`, and no further change, because the default
+        storage is persistent."
+      explanation: "`settings` is for the NATS server, and the default storage is an
+        `emptyDir` that is lost with the pod."
+    - id: c
+      text: "`startArgs` with `-D` and `replicas: 1`."
+      explanation: "`startArgs` adds server arguments and does not set a stream limit."
+    - id: d
+      text: "`jetstreamExotic` with a `maxAge` field."
+      explanation: "`jetstreamExotic` connects to a service that someone else runs and
+        does not set stream limits."
+    correct_option: a
+    explanation: Stream limits go into `streamConfig`. Without `persistence` the data
+      of a pod is in an `emptyDir` and is lost when the pod is replaced.
+  - id: ats063-020-q04
+    type: single_choice
+    difficulty: beginner
+    learning_objective: Explain how a string value of a data filter is matched
+    source_readings:
+    - sections/section-020/module-02/course-01-filters-on-a-dependency.md
+    prompt: 'A dependency has a data filter with `path: body.sensor`, `type: string`
+      and `value: [hull]`. Which of the sensor names `hull`, `hull-spare` and `overhull`
+      pass the filter?'
+    options:
+    - id: a
+      text: Only `hull`, because a string value must be equal to the event value.
+      explanation: A string value is a regular expression, not an equality test.
+    - id: b
+      text: Only `hull` and `hull-spare`, because a regular expression must match from
+        the start.
+      explanation: The expression is not anchored, so a match anywhere in the string
+        is enough.
+    - id: c
+      text: All three, because the expression `hull` matches anywhere in the string.
+        The value `^hull$` accepts only the first one.
+      explanation: Correct. Every entry of a string filter is a regular expression,
+        and anchors turn it into an exact match.
+    - id: d
+      text: None of them, because the path must start with `data.` instead of `body.`.
+      explanation: The data of a webhook event has the keys `header` and `body`, so
+        `body.sensor` is right.
+    correct_option: c
+    explanation: Each value of a string data filter is a regular expression that matches
+      anywhere in the string, so anchors are needed for an exact match.
+  - id: ats063-020-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Predict how many triggers run for a given event sequence under
+      the conditions `a-dep && b-dep`
+    source_readings:
+    - sections/section-020/module-02/course-02-trigger-conditions-and-reset.md
+    prompt: 'A trigger has `conditions: "alert-dep && ack-dep"` and no `conditionsReset`.
+      The Sensor receives the events alert, alert, ack in this order, and every event
+      passes its filters. What happens?'
+    options:
+    - id: a
+      text: The trigger runs twice, once for each alert, because each alert is stored
+        and used.
+      explanation: The store keeps one event for each dependency, and the second alert
+        replaces the first.
+    - id: b
+      text: The trigger never runs, because the second alert resets the first.
+      explanation: A second alert replaces the stored alert, but it does not cancel
+        the dependency.
+    - id: c
+      text: The trigger runs once, when the ack arrives, with the second alert.
+      explanation: Correct. The latest event of each dependency is used, and the stored
+        events are deleted when the trigger runs.
+    - id: d
+      text: The trigger runs once, when the first alert arrives, and the ack is ignored.
+      explanation: The expression is false until the ack has arrived.
+    correct_option: c
+    explanation: The first alert is stored, the second replaces it, and the ack completes
+      the expression, so the trigger runs once with the second alert.
+  - id: ats063-020-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Explain the order of transformation and filters and the rule
+      for jq output
+    source_readings:
+    - sections/section-020/module-02/course-03-transformation.md
+    prompt: 'A dependency has `transform: {jq: ".body.name"}` and a data filter on `body.name`.
+      A request with the body `{"name":"hull"}` arrives. What happens to the event?'
+    options:
+    - id: a
+      text: The filter sees the original body and accepts it, because the transformation
+        runs after the filters.
+      explanation: The transformation runs before the filters.
+    - id: b
+      text: The event is accepted, and the filter sees the string `hull`.
+      explanation: The output of a transformation is not accepted when it is a string.
+    - id: c
+      text: The Sensor ignores the transformation, because a jq command must start with
+        `event`.
+      explanation: A jq command starts with a dot, and `event` is the name of the table
+        in a Lua script.
+    - id: d
+      text: The event is discarded, because the jq command returns a string and the
+        output of a transformation must be a JSON object.
+      explanation: Correct. A failed transformation discards the event, and an update
+        operator such as `|=` keeps the object.
+    correct_option: d
+    explanation: The command `.body.name` returns a string. The Sensor requires an object,
+      so the transformation fails and the event is discarded before any filter runs.
+  - id: ats063-020-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Explain what an HTTP trigger counts as success when no policy
+      is set
+    source_readings:
+    - sections/section-020/module-03/course-02-trigger-policy-and-retry.md
+    prompt: An HTTP trigger has no `policy`. The service it calls answers every request
+      with status `503`. What does the Sensor do?
+    options:
+    - id: a
+      text: It marks the trigger as failed and repeats it with the default of five steps.
+      explanation: Without a `retryStrategy` the Sensor makes one attempt, and a status
+        is not read without a policy.
+    - id: b
+      text: It writes a failure and sends the event to the dead letter trigger.
+      explanation: A dead letter trigger runs only when the trigger fails and `atLeastOnce`
+        is set.
+    - id: c
+      text: It treats the trigger as a success, because without `policy.status` any
+        response status is accepted.
+      explanation: Correct. Only a transport error fails an HTTP trigger that has no
+        policy.
+    - id: d
+      text: It stops the Sensor pod until the service answers with `200`.
+      explanation: The Sensor does not stop for a response status.
+    correct_option: c
+    explanation: Version 1.9.6 reads the response status only when `policy.status.allow`
+      is set.
+  - id: ats063-020-q08
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Explain the condition under which retryStrategy and dlqTrigger
+      take effect
+    source_readings:
+    - sections/section-020/module-03/course-03-delivery-guarantees.md
+    prompt: 'A trigger has `policy.status.allow: [200]` and `retryStrategy` with `steps:
+      3`, but no `atLeastOnce`. The service answers `503`. How many requests does the
+      service receive for one event?'
+    options:
+    - id: a
+      text: Three, because the retry strategy repeats the failed request.
+      explanation: Without `atLeastOnce` the Sensor does not wait for the trigger, so
+        it never sees the failure.
+    - id: b
+      text: One, because the trigger runs in the background and its failure is only
+        written to the log.
+      explanation: Correct. The retry only sees a failure when the Sensor waits for
+        the trigger.
+    - id: c
+      text: Five, because the default `steps` value is used when the flag is missing.
+      explanation: The default of five applies only when `steps` is `0` or missing in
+        a retry strategy that is used.
+    - id: d
+      text: None, because the Sensor is not deployed without `atLeastOnce`.
+      explanation: Only a `dlqTrigger` requires the flag, and this Sensor has none.
+    correct_option: b
+    explanation: With `atLeastOnce` false the trigger runs in the background and counts
+      as done at once.
+  - id: ats063-020-q09
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: State the rules for dlqTrigger
+    source_readings:
+    - sections/section-020/module-03/course-03-delivery-guarantees.md
+    prompt: 'A Sensor has a trigger with a `dlqTrigger`. The trigger itself has `atLeastOnce:
+      true`, and the `dlqTrigger` has no `atLeastOnce`. What happens?'
+    options:
+    - id: a
+      text: The Sensor runs, and the dead letter trigger runs once without waiting.
+      explanation: The controller does not allow a dead letter trigger without the flag.
+    - id: b
+      text: The Sensor runs, and the dead letter trigger never runs.
+      explanation: The Sensor does not start, so nothing runs.
+    - id: c
+      text: The controller sets the flag on the dead letter trigger for you.
+      explanation: The controller does not change the Sensor.
+    - id: d
+      text: The Sensor is not deployed, and the condition `TriggersProvided` is `False`.
+      explanation: Correct. The message says that `atLeastOnce` must be set within the
+        dlqTrigger.
+    correct_option: d
+    explanation: The controller requires `atLeastOnce` true on both the trigger and
+      its dead letter trigger.
+  - id: ats063-020-q10
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Explain why a replicated EventSource with Lease election publishes
+      nothing without a Role
+    source_readings:
+    - sections/section-020/module-04/course-02-eventsource-and-sensor-pod-high-availability.md
+    prompt: 'A calendar EventSource has `replicas: 2` and the annotation `events.argoproj.io/leader-election:
+      k8s`. Its pods use the default ServiceAccount, which has no Role for Leases. Both
+      pods are ready, but no event appears. What is the cause?'
+    options:
+    - id: a
+      text: The EventBus has only one subject, and two pods cannot share it.
+      explanation: The bus is not involved in a Lease election, and the pods are connected
+        to it.
+    - id: b
+      text: Both pods are leaders, so the events are dropped as duplicates.
+      explanation: A pod without the Lease is never a leader. The duplicates window
+        plays no part here.
+    - id: c
+      text: The API server refused the EventSource, so the Deployment has no pods.
+      explanation: The pods exist and are ready. The spec was accepted.
+    - id: d
+      text: No pod can create the Lease, so no pod becomes leader and the calendar timer
+        never starts.
+      explanation: Correct. The elector calls the API server with the ServiceAccount
+        of the pod, and without get, create and update on leases there is no leader.
+    correct_option: d
+    explanation: An active-passive EventSource starts its event source only in the leader.
+      The Lease elector needs the verbs get, create and update on leases for the ServiceAccount
+      of the pod.
+  - id: ats063-020-q11
+    type: single_choice
+    difficulty: beginner
+    learning_objective: Choose the right high availability group for an EventSource
+      type
+    source_readings:
+    - sections/section-020/module-04/course-02-eventsource-and-sensor-pod-high-availability.md
+    prompt: Which statement about running two pods of an EventSource is correct?
+    options:
+    - id: a
+      text: A webhook EventSource is active-active, and a calendar EventSource is active-passive.
+      explanation: Correct. A webhook receives requests through a Service, and a calendar
+        creates events itself, so only one pod may run it.
+    - id: b
+      text: Both types are active-passive, because every EventSource needs a leader.
+      explanation: Request-driven types such as webhook serve traffic on every pod and
+        start no election.
+    - id: c
+      text: A webhook EventSource is active-passive, and a calendar EventSource is active-active.
+      explanation: This is reversed. Two calendar timers would publish every event twice.
+    - id: d
+      text: Both types are active-active, and the Sensor removes the duplicates.
+      explanation: A Sensor does not remove duplicate events from a calendar, so the
+        type must run on one pod.
+    correct_option: a
+    explanation: The documentation lists webhook among the active-active types and calendar
+      among the active-passive types.
+  - id: ats063-020-q12
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: Explain why the generated Deployment must not be scaled by hand
+    source_readings:
+    - sections/section-020/module-04/course-02-eventsource-and-sensor-pod-high-availability.md
+    prompt: 'An engineer runs `kubectl scale` on the Deployment that the controller
+      built for an EventSource, and sets three replicas. The spec of the EventSource
+      says `replicas: 2`. What is true?'
+    options:
+    - id: a
+      text: The controller reverts the Deployment to two replicas within seconds.
+      explanation: The controller updates the Deployment only when the hash of the spec
+        changes, so it does not revert the manual change.
+    - id: b
+      text: The Deployment keeps three replicas, while the election group is sized from
+        the spec, so the setup is inconsistent.
+      explanation: Correct. The size of the election group comes from spec.replicas,
+        and the Deployment is not reconciled back.
+    - id: c
+      text: The EventSource changes its own spec to three replicas.
+      explanation: The controller never writes the replica count into the spec.
+    - id: d
+      text: The API server refuses the scale, because the Deployment is owned by the
+        EventSource.
+      explanation: An owner reference does not block changes to the Deployment.
+    correct_option: b
+    explanation: Change spec.replicas on the EventSource or Sensor instead. The documentation
+      says not to scale the generated Deployment manually.

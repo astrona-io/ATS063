@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Build The Escalation Pipeline (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-capstone-020
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: signals-bus
+      description: EventBus signals is deployed with 3 replicas, a 1Gi volume claim on each pod, and a merged stream configuration with maxAge 12h
+      type: file
+      source: validation/validate-signals-bus.sh
+      hint: "Put persistence and streamConfig under spec.jetstream. The stream limit is maxAge in the streamConfig text."
+    - name: beacon-eventsource
+      description: EventSource beacon uses the bus signals, runs 2 ready pods, and has the events alert and acknowledgement on port 12000
+      type: file
+      source: validation/validate-beacon-eventsource.sh
+      hint: "Set eventBusName and replicas in the spec. The webhook events are alert at /alert and ack at /ack."
+    - name: escalate-filter
+      description: A request to alert with level critical creates one page- Workflow with the site, and a request with another level creates none
+      type: file
+      source: validation/validate-escalate-filter.sh
+      hint: "Put a data filter on the dependency alert-dep, path body.level, type string, value critical."
+    - name: escalate-ack
+      description: A request to ack creates one close- Workflow with the site and no page- Workflow
+      type: file
+      source: validation/validate-escalate-ack.sh
+      hint: "Give each trigger conditions that name exactly one dependency."
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,97 @@
+# Reference solution: dedicated service account with a Lease Role, resources and replicas.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: beacon-es
+  namespace: starfleet
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: beacon-lease
+  namespace: starfleet
+rules:
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "create", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: beacon-lease
+  namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: beacon-lease
+subjects:
+  - kind: ServiceAccount
+    name: beacon-es
+    namespace: starfleet
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: beacon
+  namespace: starfleet
+  annotations:
+    events.argoproj.io/leader-election: k8s
+spec:
+  replicas: 2
+  template:
+    serviceAccountName: beacon-es
+    container:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
+  calendar:
+    tick:
+      interval: 20s
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: beacon
+  namespace: starfleet
+spec:
+  replicas: 2
+  template:
+    serviceAccountName: event-trigger
+    container:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+  dependencies:
+    - name: tick-dep
+      eventSourceName: beacon
+      eventName: tick
+  triggers:
+    - template:
+        name: patrol
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: beacon-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: main
+                ttlStrategy:
+                  secondsAfterCompletion: 120
+                templates:
+                  - name: main
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [sh, -c]
+                      args: ["echo patrol"]

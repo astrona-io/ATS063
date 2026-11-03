@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: audit
+  namespace: starfleet
+spec:
+  jetstream:
+    version: 2.10.10
+    replicas: 3
+    persistence:
+      accessMode: ReadWriteOnce
+      volumeSize: 1Gi
+    streamConfig: |
+      maxAge: 24h
+      maxMsgs: 1000
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: ledger
+  namespace: starfleet
+spec:
+  eventBusName: audit
+  service:
+    ports:
+      - port: 12000
+        targetPort: 12000
+  webhook:
+    entry:
+      port: "12000"
+      endpoint: /entry
+      method: POST
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: ledger
+  namespace: starfleet
+spec:
+  eventBusName: audit
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: entry-dep
+      eventSourceName: ledger
+      eventName: entry
+  triggers:
+    - template:
+        name: record-entry
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: ledger-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: main
+                arguments:
+                  parameters:
+                    - name: message
+                      value: unset
+                templates:
+                  - name: main
+                    inputs:
+                      parameters:
+                        - name: message
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [sh, -c]
+                      args: ["echo entry={{inputs.parameters.message}}"]
+          parameters:
+            - src:
+                dependencyName: entry-dep
+                dataKey: body.message
+              dest: spec.arguments.parameters.0.value
