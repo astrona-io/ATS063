@@ -584,3 +584,135 @@ questions:
       explanation: "Events come over the bus, not through the API."
     correct_option: b
     explanation: "Requests from another namespace reach an EventSource through <service>.<namespace>.svc, not through a Sensor dependency."
+  - id: ats063-final-q23
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Set jsonBody for a Kafka event"
+    source_readings:
+    - sections/section-010/module-05/course-02-consuming-a-kafka-topic.md
+    prompt: "A Kafka message holds `{\"ship\":\"scout\"}`. The Sensor reads `body.ship` and gets nothing. What is the likely cause?"
+    options:
+    - id: a
+      text: "The topic name is too long."
+      explanation: "A long name does not change how the body is carried."
+    - id: b
+      text: "The event does not set `jsonBody: true`, so the body is not embedded as JSON."
+      explanation: "Correct. Without it the Sensor cannot address fields of the message."
+    - id: c
+      text: "The Sensor has no service account."
+      explanation: "That causes a permission error after the event arrives."
+    - id: d
+      text: "The EventBus has one replica."
+      explanation: "The number of replicas does not change the body."
+    correct_option: b
+    explanation: "The setting jsonBody belongs to the event next to url, topic and partition."
+  - id: ats063-final-q24
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Find a broker that is down"
+    source_readings:
+    - sections/section-010/module-05/course-04-broker-failures-and-signs-in-the-log.md
+    prompt: "The broker is scaled to zero. What does the EventSource do?"
+    options:
+    - id: a
+      text: "It stops and is deleted by the controller."
+      explanation: "The controller does not delete the EventSource."
+    - id: b
+      text: "It keeps running, logs connection errors and retries according to its backoff."
+      explanation: "Correct. After the broker returns, the pod connects again."
+    - id: c
+      text: "It switches to the EventBus as the source."
+      explanation: "The bus is the target of events, not a source."
+    - id: d
+      text: "It publishes empty events."
+      explanation: "No events are created without messages."
+    correct_option: b
+    explanation: "The log of the EventSource pod shows the failed connection. The status of the EventSource does not always change."
+  - id: ats063-final-q25
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Reload the configuration safely"
+    source_readings:
+    - sections/section-020/module-06/course-03-adding-scrape-jobs.md
+    prompt: "You applied a changed ConfigMap, and a reload call shows the old jobs. What is the safe step?"
+    options:
+    - id: a
+      text: "Reload again immediately."
+      explanation: "The file in the pod may not have changed yet."
+    - id: b
+      text: "Print the file in the pod, or restart the Deployment."
+      explanation: "Correct. A mounted ConfigMap is refreshed after some time."
+    - id: c
+      text: "Delete the Service."
+      explanation: "The Service does not hold the configuration."
+    - id: d
+      text: "Scale the controller to zero."
+      explanation: "The controller does not read this file."
+    correct_option: b
+    explanation: "The flag --web.enable-lifecycle enables POST /-/reload, but the server reads only what is in the pod."
+  - id: ats063-final-q26
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Select pods by label"
+    source_readings:
+    - sections/section-020/module-06/course-03-adding-scrape-jobs.md
+    prompt: "How is the pod label `eventsource-name` written in a relabel rule?"
+    options:
+    - id: a
+      text: "`eventsource-name`"
+      explanation: "Relabeling uses the meta label form."
+    - id: b
+      text: "`__meta_kubernetes_pod_label_eventsource_name`"
+      explanation: "Correct. Characters that are not letters or digits become underscores."
+    - id: c
+      text: "`__eventsource_name`"
+      explanation: "This is not a discovery label."
+    - id: d
+      text: "`pod.label.eventsource-name`"
+      explanation: "This is not the syntax of Prometheus."
+    correct_option: b
+    explanation: "Use the action keep with the regular expression .+ to keep only pods that carry the label."
+  - id: ats063-final-q27
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Know that the path is forwarded unchanged"
+    source_readings:
+    - sections/section-020/module-07/course-02-the-first-route.md
+    prompt: "An Ingress path is `/events` and the webhook endpoint is `/report`. A request to `/events` is sent. What does the EventSource answer?"
+    options:
+    - id: a
+      text: "200, because the Ingress rewrites the path."
+      explanation: "No rewrite happens unless you add an annotation."
+    - id: b
+      text: "404, because the path `/events` reaches the EventSource unchanged."
+      explanation: "Correct. The path must equal the endpoint."
+    - id: c
+      text: "503, because the Service has no endpoints."
+      explanation: "The pod is ready, so the Service has endpoints."
+    - id: d
+      text: "302, a redirect to `/report`."
+      explanation: "The EventSource does not redirect."
+    correct_option: b
+    explanation: "The Ingress does not change the path."
+  - id: ats063-final-q28
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read the 503 status"
+    source_readings:
+    - sections/section-020/module-07/course-04-reading-failures-and-adding-tls.md
+    prompt: "The Ingress returns 503 for a host and a path that match a rule. What is likely?"
+    options:
+    - id: a
+      text: "The Host header is wrong."
+      explanation: "A wrong host gives 404."
+    - id: b
+      text: "The backend Service has no endpoints or does not expose the port."
+      explanation: "Correct. Check the endpoints."
+    - id: c
+      text: "The path is wrong."
+      explanation: "A wrong path gives 404."
+    - id: d
+      text: "The Sensor is silent."
+      explanation: "The Sensor is behind the EventSource."
+    correct_option: b
+    explanation: "The log of the controller shows the upstream of each request."

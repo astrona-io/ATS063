@@ -48,6 +48,13 @@ Makes the reader able to explain and build the Argo Events flow. An event enters
     astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-010/module-04/playground
     ```
 
+### 5. Kafka And AMQP Brokers
+*   **Module Reader:** **[Module 5: Kafka And AMQP Brokers](./module-05/course.md)**
+*   **Hands-on Playground:** `sections/section-010/module-05/playground` — the same cluster with the default EventBus, a Kafka broker and a RabbitMQ broker in `starfleet`.
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-010/module-05/playground
+    ```
+
 ### Section Capstone Challenge
 *   **Comprehensive Challenge:** Build The Harbor Pipeline Capstone — `sections/section-010/capstone/labs/lab-01`
     ```bash

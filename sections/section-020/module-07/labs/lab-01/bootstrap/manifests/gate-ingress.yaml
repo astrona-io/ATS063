@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gate
+  namespace: starfleet
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: gate.example.test
+      http:
+        paths:
+          - path: /reports
+            pathType: Exact
+            backend:
+              service:
+                name: gate-eventsource
+                port:
+                  number: 12001

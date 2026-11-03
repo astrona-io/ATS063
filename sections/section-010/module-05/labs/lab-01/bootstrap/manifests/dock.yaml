@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: dock
+  namespace: starfleet
+spec:
+  kafka:
+    arrival:
+      url: kafka.starfleet.svc:9093
+      topic: arivals
+      partition: "0"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: dock
+  namespace: starfleet
+spec:
+  template:
+    serviceAccountName: event-trigger
+  dependencies:
+    - name: arrival-dep
+      eventSourceName: dock
+      eventName: arrival
+  triggers:
+    - template:
+        name: run-arrival
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: dock-
+              spec:
+                serviceAccountName: workflow-runner
+                entrypoint: report
+                arguments:
+                  parameters:
+                    - name: ship
+                      value: unset
+                templates:
+                  - name: report
+                    inputs:
+                      parameters:
+                        - name: ship
+                    container:
+                      image: docker.io/library/busybox:1.37
+                      command: [echo]
+                      args: ["docked {{inputs.parameters.ship}}"]
+          parameters:
+            - src:
+                dependencyName: arrival-dep
+                dataKey: body.ship
+              dest: spec.arguments.parameters.0.value

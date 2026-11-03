@@ -53,6 +53,20 @@ Makes the reader able to configure and operate the components behind the event f
     astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-05/playground
     ```
 
+### 6. Metrics With Prometheus
+*   **Module Reader:** **[Module 6: Metrics With Prometheus](./module-06/course.md)**
+*   **Hands-on Playground:** `sections/section-020/module-06/playground` — the same cluster with a Prometheus server in `starfleet` that scrapes the controller.
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-06/playground
+    ```
+
+### 7. Exposing Webhooks Through Ingress
+*   **Module Reader:** **[Module 7: Exposing Webhooks Through Ingress](./module-07/course.md)**
+*   **Hands-on Playground:** `sections/section-020/module-07/playground` — the same cluster with the ingress-nginx controller installed.
+    ```bash
+    astrona run --git ssh://git@github.com/astrona-io/ATS063.git -c sections/section-020/module-07/playground
+    ```
+
 ### Section Capstone Challenge
 *   **Comprehensive Challenge:** Build The Escalation Pipeline Capstone — `sections/section-020/capstone/labs/lab-01`
     ```bash

@@ -35,6 +35,8 @@ sections:
         title: Reacting With Sensors And Triggers
       - id: module-04
         title: More EventSource Types
+      - id: module-05
+        title: Kafka And AMQP Brokers
     capstone: Build The Harbor Pipeline
     quiz: sections/section-010/quiz.yaml
   - id: section-020
@@ -50,6 +52,10 @@ sections:
         title: The Controller, Installation And High Availability
       - id: module-05
         title: Observing And Securing The Components
+      - id: module-06
+        title: Metrics With Prometheus
+      - id: module-07
+        title: Exposing Webhooks Through Ingress
     capstone: Build The Escalation Pipeline
     quiz: sections/section-020/quiz.yaml
 final_quiz: sections/final-domain-quiz.yaml

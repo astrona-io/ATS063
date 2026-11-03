@@ -15,11 +15,11 @@ training:
   description: >
     Training material covering the Argo Events domain of the Certified Argo
     Project Associate (CAPA) exam: the event flow from source to trigger,
-    webhook, calendar, resource and other EventSource types such as NATS, Sensors with dependencies,
+    webhook, calendar, resource and other EventSource types such as NATS, Kafka and AMQP, Sensors with dependencies,
     filters, conditions and parameters, Kubernetes and Workflow triggers, the
     JetStream EventBus, trigger policies and delivery guarantees, and the
     controller with installation and high availability, and the permissions,
-    logs, metrics and network limits of the components. Each module pairs a
+    logs, metrics with Prometheus, ingress and network limits of the components. Each module pairs a
     layered reader with an ungraded playground and a graded lab. Each section
     closes with an integration capstone. Targets Argo Events 1.9.6.
 
@@ -236,6 +236,45 @@ modules:
       - type: reading
         title: Summary
         path: sections/section-010/module-04/course-05-summary.md
+
+      - type: reading
+        title: "Kafka And AMQP Brokers"
+        path: sections/section-010/module-05/course.md
+      - type: reading
+        title: "Kafka And AMQP Compared"
+        path: sections/section-010/module-05/course-01-kafka-and-amqp-compared.md
+      - type: reading
+        title: "Consuming A Kafka Topic"
+        path: sections/section-010/module-05/course-02-consuming-a-kafka-topic.md
+      - type: reading
+        title: "Consuming From RabbitMQ Over AMQP"
+        path: sections/section-010/module-05/course-03-consuming-from-rabbitmq-over-amqp.md
+      - type: reading
+        title: Question
+        path: sections/section-010/module-05/labs/lab-01/question.md
+      - type: lab
+        title: "Fix A Kafka EventSource"
+        path: sections/section-010/module-05/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 30m
+        topic: kafka-eventsource
+        task_kind: fix
+        tags: [argo-events, eventsource, kafka, jsonbody]
+        learning_goals:
+          - Find why a Kafka EventSource receives no messages and correct the port and the topic
+          - Set jsonBody so that a Sensor can read fields of the message
+          - Confirm the result by producing a message and reading the Workflow parameter
+        resources:
+          - name: "Argo Events Kafka EventSource"
+            url: https://argoproj.github.io/argo-events/eventsources/setup/kafka/
+          - name: "Argo Events AMQP EventSource"
+            url: https://argoproj.github.io/argo-events/eventsources/setup/amqp/
+      - type: reading
+        title: "Broker Failures And Signs In The Log"
+        path: sections/section-010/module-05/course-04-broker-failures-and-signs-in-the-log.md
+      - type: reading
+        title: Summary
+        path: sections/section-010/module-05/course-05-summary.md
 
       - type: reading
         title: Question
@@ -489,6 +528,84 @@ modules:
       - type: reading
         title: Summary
         path: sections/section-020/module-05/course-05-summary.md
+
+      - type: reading
+        title: "Metrics With Prometheus"
+        path: sections/section-020/module-06/course.md
+      - type: reading
+        title: "Metrics Endpoints Of The Components"
+        path: sections/section-020/module-06/course-01-metrics-endpoints-of-the-components.md
+      - type: reading
+        title: "Scraping The Controller"
+        path: sections/section-020/module-06/course-02-scraping-the-controller.md
+      - type: reading
+        title: "Adding Scrape Jobs"
+        path: sections/section-020/module-06/course-03-adding-scrape-jobs.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-06/labs/lab-01/question.md
+      - type: lab
+        title: "Fix A Prometheus Scrape Job"
+        path: sections/section-020/module-06/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: prometheus-metrics
+        task_kind: fix
+        tags: [argo-events, metrics, prometheus, scrape]
+        learning_goals:
+          - Find why a scrape job has no target by reading the targets API
+          - Correct the discovery namespace and the port of the job
+          - Make the server read the new configuration and confirm the target is up
+        resources:
+          - name: "Argo Events metrics"
+            url: https://argoproj.github.io/argo-events/metrics/
+          - name: "Prometheus configuration"
+            url: https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+      - type: reading
+        title: "Rules For Missing Targets"
+        path: sections/section-020/module-06/course-04-rules-for-missing-targets.md
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-06/course-05-summary.md
+
+      - type: reading
+        title: "Exposing Webhooks Through Ingress"
+        path: sections/section-020/module-07/course.md
+      - type: reading
+        title: "The Service Of A Webhook EventSource"
+        path: sections/section-020/module-07/course-01-the-service-of-a-webhook-eventsource.md
+      - type: reading
+        title: "The First Route"
+        path: sections/section-020/module-07/course-02-the-first-route.md
+      - type: reading
+        title: "Several EventSources Behind One Host"
+        path: sections/section-020/module-07/course-03-several-eventsources-behind-one-host.md
+      - type: reading
+        title: Question
+        path: sections/section-020/module-07/labs/lab-01/question.md
+      - type: lab
+        title: "Fix An Ingress For A Webhook"
+        path: sections/section-020/module-07/labs/lab-01
+        difficulty: intermediate
+        estimated_duration: 25m
+        topic: ingress
+        task_kind: fix
+        tags: [argo-events, webhook, ingress, networking]
+        learning_goals:
+          - Find the Service that the controller created for a webhook EventSource
+          - Correct the backend name, the backend port and the path of an Ingress
+          - Confirm the route by posting an event through the controller and reading the Workflow
+        resources:
+          - name: "Argo Events webhook EventSource"
+            url: https://argoproj.github.io/argo-events/eventsources/setup/webhook/
+          - name: "Kubernetes Ingress"
+            url: https://kubernetes.io/docs/concepts/services-networking/ingress/
+      - type: reading
+        title: "Reading Failures And Adding TLS"
+        path: sections/section-020/module-07/course-04-reading-failures-and-adding-tls.md
+      - type: reading
+        title: Summary
+        path: sections/section-020/module-07/course-05-summary.md
 
       - type: reading
         title: Question

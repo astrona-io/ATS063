@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fix An Ingress For A Webhook (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-lab-020-07
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the ingress-nginx controller for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: ingress-backend
+      description: The Ingress gate sends the path to the Service that the controller created for the EventSource gate
+      type: file
+      source: validation/validate-ingress-backend.sh
+      hint: "Read the Services in starfleet and use the exact name and a port that the Service exposes."
+    - name: ingress-path
+      description: The Ingress gate matches the endpoint of the webhook event
+      type: file
+      source: validation/validate-ingress-path.sh
+      hint: "The path is forwarded unchanged, so it must equal the endpoint of the event."
+    - name: event-through-ingress
+      description: A POST through the ingress controller with the host gate.example.test creates a gate- Workflow that succeeds
+      type: file
+      source: validation/validate-event-through-ingress.sh
+      hint: "Send the Host header gate.example.test. The route must reach the EventSource, and the Sensor is correct."
+
+teardown:
+  keepCluster: false

@@ -668,3 +668,443 @@ questions:
       explanation: "Events come over the bus, not through the API."
     correct_option: b
     explanation: "Requests from another namespace reach an EventSource through <service>.<namespace>.svc, not through a Sensor dependency."
+  - id: ats063-020-q27
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the port of the controller metrics"
+    source_readings:
+    - sections/section-020/module-06/course-01-metrics-endpoints-of-the-components.md
+    prompt: "On which port and path does the Argo Events controller serve metrics in this course?"
+    options:
+    - id: a
+      text: "Port 9090 at `/metrics`."
+      explanation: "9090 is the port of the Prometheus server."
+    - id: b
+      text: "Port 7777 at `/metrics`."
+      explanation: "Correct. Test it from a pod with curl."
+    - id: c
+      text: "Port 12000 at `/stats`."
+      explanation: "12000 is the port of the example webhook."
+    - id: d
+      text: "Port 4222 at `/healthz`."
+      explanation: "4222 is the NATS client port."
+    correct_option: b
+    explanation: "Read the page by hand first and print its TYPE lines to see the names of your version."
+  - id: ats063-020-q28
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Read the types of metrics"
+    source_readings:
+    - sections/section-020/module-06/course-01-metrics-endpoints-of-the-components.md
+    prompt: "Which metric type only grows, so that you read it with a rate?"
+    options:
+    - id: a
+      text: "A gauge."
+      explanation: "A gauge goes up and down."
+    - id: b
+      text: "A counter."
+      explanation: "Correct. A counter is the total since the start of the process."
+    - id: c
+      text: "A summary of a gauge."
+      explanation: "A summary reports quantiles."
+    - id: d
+      text: "A label."
+      explanation: "A label is not a metric type."
+    correct_option: b
+    explanation: "The line TYPE above each metric names its type."
+  - id: ats063-020-q29
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Use pod discovery"
+    source_readings:
+    - sections/section-020/module-06/course-02-scraping-the-controller.md
+    prompt: "What does Prometheus need so that `kubernetes_sd_configs` with `role: pod` finds targets?"
+    options:
+    - id: a
+      text: "A Role that lets it read ConfigMaps."
+      explanation: "ConfigMaps are not what discovery lists."
+    - id: b
+      text: "A service account that may get, list and watch pods, for example through a ClusterRole."
+      explanation: "Correct. Without it the log shows forbidden errors."
+    - id: c
+      text: "A Service for every pod."
+      explanation: "Pod discovery does not use Services."
+    - id: d
+      text: "The Argo Events controller as a proxy."
+      explanation: "The server calls the Kubernetes API itself."
+    correct_option: b
+    explanation: "The ClusterRole in the playground allows get, list and watch on pods."
+  - id: ats063-020-q30
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Set the target address by relabeling"
+    source_readings:
+    - sections/section-020/module-06/course-02-scraping-the-controller.md
+    prompt: "Why does the job set `__address__` to the pod IP and the port 7777?"
+    options:
+    - id: a
+      text: "Because Prometheus cannot read pod IPs."
+      explanation: "The pod IP is a discovery label."
+    - id: b
+      text: "Because a pod that declares no port would otherwise give a target without a port."
+      explanation: "Correct. The rule fixes the port whatever the pod declares."
+    - id: c
+      text: "Because it speeds up the scrape."
+      explanation: "The rule does not change the speed."
+    - id: d
+      text: "Because the job needs a Service."
+      explanation: "Pod discovery does not use Services."
+    correct_option: b
+    explanation: "The label __address__ is the address that Prometheus connects to."
+  - id: ats063-020-q31
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Tell a missing target from a failing target"
+    source_readings:
+    - sections/section-020/module-06/course-02-scraping-the-controller.md
+    prompt: "The query `up{job=\"argo-events-controller\"}` returns no series. What does it mean?"
+    options:
+    - id: a
+      text: "The target is healthy."
+      explanation: "A healthy target has the value 1."
+    - id: b
+      text: "No target exists for the job, so discovery finds no pod."
+      explanation: "Correct. A failing target would show the value 0."
+    - id: c
+      text: "The target is down."
+      explanation: "A down target has an up series with the value 0."
+    - id: d
+      text: "The scrape interval is too short."
+      explanation: "The interval does not remove the series."
+    correct_option: b
+    explanation: "Read the targets API: no entry means a discovery fault, and an entry that is down means an address fault."
+  - id: ats063-020-q32
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Select pods by label"
+    source_readings:
+    - sections/section-020/module-06/course-03-adding-scrape-jobs.md
+    prompt: "How is the pod label `eventsource-name` written in a relabel rule?"
+    options:
+    - id: a
+      text: "`eventsource-name`"
+      explanation: "Relabeling uses the meta label form."
+    - id: b
+      text: "`__meta_kubernetes_pod_label_eventsource_name`"
+      explanation: "Correct. Characters that are not letters or digits become underscores."
+    - id: c
+      text: "`__eventsource_name`"
+      explanation: "This is not a discovery label."
+    - id: d
+      text: "`pod.label.eventsource-name`"
+      explanation: "This is not the syntax of Prometheus."
+    correct_option: b
+    explanation: "Use the action keep with the regular expression .+ to keep only pods that carry the label."
+  - id: ats063-020-q33
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Reload the configuration safely"
+    source_readings:
+    - sections/section-020/module-06/course-03-adding-scrape-jobs.md
+    prompt: "You applied a changed ConfigMap, and a reload call shows the old jobs. What is the safe step?"
+    options:
+    - id: a
+      text: "Reload again immediately."
+      explanation: "The file in the pod may not have changed yet."
+    - id: b
+      text: "Print the file in the pod, or restart the Deployment."
+      explanation: "Correct. A mounted ConfigMap is refreshed after some time."
+    - id: c
+      text: "Delete the Service."
+      explanation: "The Service does not hold the configuration."
+    - id: d
+      text: "Scale the controller to zero."
+      explanation: "The controller does not read this file."
+    correct_option: b
+    explanation: "The flag --web.enable-lifecycle enables POST /-/reload, but the server reads only what is in the pod."
+  - id: ats063-020-q34
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Write the rule for a deleted component"
+    source_readings:
+    - sections/section-020/module-06/course-04-rules-for-missing-targets.md
+    prompt: "The controller is deleted. Why does the rule `up == 0` stay silent?"
+    options:
+    - id: a
+      text: "The rule has no `for` field."
+      explanation: "The field only delays the alert."
+    - id: b
+      text: "No series exists for a target that is gone, so nothing equals 0."
+      explanation: "Correct. Use absent(up{...}) to detect it."
+    - id: c
+      text: "Prometheus ignores deleted pods in rules."
+      explanation: "Prometheus evaluates the query. The query returns nothing."
+    - id: d
+      text: "The rule runs once a day."
+      explanation: "The rule runs at the evaluation interval."
+    correct_option: b
+    explanation: "A good set has one rule for a failing target and one for a missing target."
+  - id: ats063-020-q35
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Know what the for field does"
+    source_readings:
+    - sections/section-020/module-06/course-04-rules-for-missing-targets.md
+    prompt: "What does `for: 30s` do in an alerting rule?"
+    options:
+    - id: a
+      text: "It repeats the alert every 30 seconds."
+      explanation: "It does not repeat the alert."
+    - id: b
+      text: "It keeps the alert pending until the query has returned a result for 30 seconds."
+      explanation: "Correct. It avoids alerts for a single failed scrape."
+    - id: c
+      text: "It limits the rule to 30 targets."
+      explanation: "It does not count targets."
+    - id: d
+      text: "It sets the scrape timeout."
+      explanation: "The timeout is a scrape setting."
+    correct_option: b
+    explanation: "The state goes from inactive to pending to firing."
+  - id: ats063-020-q36
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Know who sends the notification"
+    source_readings:
+    - sections/section-020/module-06/course-04-rules-for-missing-targets.md
+    prompt: "Which component sends a firing alert to a person or a system?"
+    options:
+    - id: a
+      text: "The Argo Events controller."
+      explanation: "The controller does not send alerts."
+    - id: b
+      text: "Alertmanager."
+      explanation: "Correct. Prometheus only holds the state."
+    - id: c
+      text: "The EventBus."
+      explanation: "The bus transports events."
+    - id: d
+      text: "The Sensor."
+      explanation: "A Sensor could react to an event, but it does not receive alerts from Prometheus."
+    correct_option: b
+    explanation: "The playground has no Alertmanager. The rules are the part that you write."
+  - id: ats063-020-q37
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the Service of a webhook EventSource"
+    source_readings:
+    - sections/section-020/module-07/course-01-the-service-of-a-webhook-eventsource.md
+    prompt: "What is the name of the Service that the controller creates for the webhook EventSource `fleet`?"
+    options:
+    - id: a
+      text: "`fleet`"
+      explanation: "The Service has a suffix."
+    - id: b
+      text: "`fleet-eventsource-svc`"
+      explanation: "Correct. It exists only when the EventSource has a service section."
+    - id: c
+      text: "`eventsource-fleet`"
+      explanation: "This is not the pattern."
+    - id: d
+      text: "`fleet-svc`"
+      explanation: "This is not the pattern."
+    correct_option: b
+    explanation: "The Ingress backend must use exactly this name."
+  - id: ats063-020-q38
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Make the ports line up"
+    source_readings:
+    - sections/section-020/module-07/course-01-the-service-of-a-webhook-eventsource.md
+    prompt: "The Service has `targetPort: 12001`, and the event listens on port 12000. What happens to a request?"
+    options:
+    - id: a
+      text: "It works, because the Service translates ports."
+      explanation: "The target port must be the port that the pod listens on."
+    - id: b
+      text: "The Service accepts the connection and the pod refuses it."
+      explanation: "Correct. Make the three numbers equal."
+    - id: c
+      text: "The EventSource changes its port."
+      explanation: "The EventSource does not follow the Service."
+    - id: d
+      text: "The Ingress corrects the port."
+      explanation: "The Ingress forwards to the Service port."
+    correct_option: b
+    explanation: "Test the Service from inside the cluster before you test the Ingress."
+  - id: ats063-020-q39
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Select the controller with the class"
+    source_readings:
+    - sections/section-020/module-07/course-02-the-first-route.md
+    prompt: "An Ingress has no `ingressClassName`. What happens with the ingress-nginx controller of the playground?"
+    options:
+    - id: a
+      text: "It takes the Ingress, because it is the only controller."
+      explanation: "The controller takes Ingress objects that name its class unless a default class is set."
+    - id: b
+      text: "No controller takes the Ingress, and requests get no route."
+      explanation: "Correct in a cluster without a default class."
+    - id: c
+      text: "The controller creates the class."
+      explanation: "The class exists already."
+    - id: d
+      text: "The API server refuses the object."
+      explanation: "The object is valid."
+    correct_option: b
+    explanation: "Set ingressClassName: nginx."
+  - id: ats063-020-q40
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Know that the path is forwarded unchanged"
+    source_readings:
+    - sections/section-020/module-07/course-02-the-first-route.md
+    prompt: "An Ingress path is `/events` and the webhook endpoint is `/report`. A request to `/events` is sent. What does the EventSource answer?"
+    options:
+    - id: a
+      text: "200, because the Ingress rewrites the path."
+      explanation: "No rewrite happens unless you add an annotation."
+    - id: b
+      text: "404, because the path `/events` reaches the EventSource unchanged."
+      explanation: "Correct. The path must equal the endpoint."
+    - id: c
+      text: "503, because the Service has no endpoints."
+      explanation: "The pod is ready, so the Service has endpoints."
+    - id: d
+      text: "302, a redirect to `/report`."
+      explanation: "The EventSource does not redirect."
+    correct_option: b
+    explanation: "The Ingress does not change the path."
+  - id: ats063-020-q41
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Know why a 200 is not the whole result"
+    source_readings:
+    - sections/section-020/module-07/course-02-the-first-route.md
+    prompt: "A POST through the Ingress returns 200, and no Workflow appears. Where is the fault?"
+    options:
+    - id: a
+      text: "In the Ingress rule."
+      explanation: "The request reached the EventSource, so the route works."
+    - id: b
+      text: "After the EventSource, for example in the Sensor, the bus or the permissions."
+      explanation: "Correct. The 200 comes from the EventSource."
+    - id: c
+      text: "In the controller of ingress-nginx."
+      explanation: "It forwarded the request."
+    - id: d
+      text: "In DNS."
+      explanation: "DNS is not involved in the test."
+    correct_option: b
+    explanation: "Read the logs of the EventSource and the Sensor."
+  - id: ats063-020-q42
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Choose the path type"
+    source_readings:
+    - sections/section-020/module-07/course-03-several-eventsources-behind-one-host.md
+    prompt: "What does `pathType: Prefix` with the path `/report` match?"
+    options:
+    - id: a
+      text: "Only `/report`."
+      explanation: "That is Exact."
+    - id: b
+      text: "`/report` and `/report/daily`, but not `/reports`."
+      explanation: "Correct. It matches by path elements."
+    - id: c
+      text: "Every path that starts with the letters report."
+      explanation: "It matches path elements, not letters."
+    - id: d
+      text: "Every path of the host."
+      explanation: "That needs the path /."
+    correct_option: b
+    explanation: "The EventSource answers only on its endpoint."
+  - id: ats063-020-q43
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Secure a public webhook"
+    source_readings:
+    - sections/section-020/module-07/course-03-several-eventsources-behind-one-host.md
+    prompt: "Which field lets a webhook EventSource require a token?"
+    options:
+    - id: a
+      text: "`authSecret`"
+      explanation: "Correct. It names a key of a Secret."
+    - id: b
+      text: "`tlsSecret`"
+      explanation: "TLS is configured with other fields."
+    - id: c
+      text: "`serviceAccountName`"
+      explanation: "This is a Sensor field."
+    - id: d
+      text: "`filter`"
+      explanation: "Filters work on events."
+    correct_option: a
+    explanation: "Without authentication anyone who reaches the host can create Workflows."
+  - id: ats063-020-q44
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read the 503 status"
+    source_readings:
+    - sections/section-020/module-07/course-04-reading-failures-and-adding-tls.md
+    prompt: "The Ingress returns 503 for a host and a path that match a rule. What is likely?"
+    options:
+    - id: a
+      text: "The Host header is wrong."
+      explanation: "A wrong host gives 404."
+    - id: b
+      text: "The backend Service has no endpoints or does not expose the port."
+      explanation: "Correct. Check the endpoints."
+    - id: c
+      text: "The path is wrong."
+      explanation: "A wrong path gives 404."
+    - id: d
+      text: "The Sensor is silent."
+      explanation: "The Sensor is behind the EventSource."
+    correct_option: b
+    explanation: "The log of the controller shows the upstream of each request."
+  - id: ats063-020-q45
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Create a TLS Secret in the right place"
+    source_readings:
+    - sections/section-020/module-07/course-04-reading-failures-and-adding-tls.md
+    prompt: "Where must the TLS Secret of an Ingress be?"
+    options:
+    - id: a
+      text: "In the namespace `ingress-nginx`."
+      explanation: "The Ingress reads it from its own namespace."
+    - id: b
+      text: "In the same namespace as the Ingress."
+      explanation: "Correct. The type is kubernetes.io/tls."
+    - id: c
+      text: "In `argo-events`."
+      explanation: "The controller of Argo Events does not read it."
+    - id: d
+      text: "In any namespace."
+      explanation: "The Ingress cannot read another namespace."
+    correct_option: b
+    explanation: "Name it in the tls section with secretName."
+  - id: ats063-020-q46
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Test HTTPS in a test cluster"
+    source_readings:
+    - sections/section-020/module-07/course-04-reading-failures-and-adding-tls.md
+    prompt: "Why does the test use `--resolve fleet.example.test:443:<ip>`?"
+    options:
+    - id: a
+      text: "To skip the certificate check."
+      explanation: "That is the job of the flag -k."
+    - id: b
+      text: "So that the TLS handshake names the host while curl connects to the Service address."
+      explanation: "Correct. Otherwise the certificate does not match."
+    - id: c
+      text: "To change the Host rule."
+      explanation: "The rule is in the Ingress."
+    - id: d
+      text: "To set a DNS server."
+      explanation: "The flag does not set a server."
+    correct_option: b
+    explanation: "Use a certificate manager in a real cluster."

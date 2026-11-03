@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: dock
+  namespace: starfleet
+spec:
+  kafka:
+    arrival:
+      url: kafka.starfleet.svc:9092
+      topic: arrivals
+      partition: "0"
+      jsonBody: true

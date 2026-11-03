@@ -203,8 +203,8 @@ The course covers **Argo Events**, worth **12%** of **Certified Argo Project Ass
 
 ### Layout
 
-- `sections/section-010` (fundamentals): modules 01 to 04, then a capstone lab and `quiz.yaml`.
-- `sections/section-020` (components and architecture): modules 01 to 05, then a capstone lab and `quiz.yaml`.
+- `sections/section-010` (fundamentals): modules 01 to 05, then a capstone lab and `quiz.yaml`.
+- `sections/section-020` (components and architecture): modules 01 to 07, then a capstone lab and `quiz.yaml`.
 - `sections/final-domain-quiz.yaml`: the final knowledge check.
 - Each module has `course.md` (landing page), `course-0N-*.md` parts, a `# Summary` page, `playground/` and `labs/lab-01/`.
 

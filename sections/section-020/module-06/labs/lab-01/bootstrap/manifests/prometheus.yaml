@@ -1,0 +1,99 @@
+# Prometheus in starfleet with a scrape job for the Argo Events controller.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: starfleet
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-pod-discovery
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-pod-discovery
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-pod-discovery
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: starfleet
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: starfleet
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 10s
+      evaluation_interval: 10s
+    scrape_configs:
+      - job_name: argo-events-controller
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: [argo-event]
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_ip]
+            regex: (.+)
+            target_label: __address__
+            replacement: "${1}:7778"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: starfleet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus
+      containers:
+        - name: prometheus
+          image: quay.io/prometheus/prometheus:v3.1.0
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --web.enable-lifecycle
+          ports:
+            - containerPort: 9090
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9090
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: starfleet
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - name: web
+      port: 9090
+      targetPort: 9090

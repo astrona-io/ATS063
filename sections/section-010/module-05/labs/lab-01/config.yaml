@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fix A Kafka EventSource (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-063-lab-010-05
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f
+    nodes:
+      workers: 1
+
+bootstrap:
+  init:
+    - name: setup
+      description: Install Argo Workflows and Argo Events, create the Starfleet workloads and the starting objects for this exercise
+      type: file
+      source: bootstrap/setup.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: dock-connection
+      description: The Kafka event arrival of EventSource dock reads the topic arrivals from the Service kafka on port 9092
+      type: file
+      source: validation/validate-dock-connection.sh
+      hint: "Compare the url and the topic with the Service kafka and with the topic the producer writes to."
+    - name: dock-json-body
+      description: The Kafka event arrival embeds JSON messages as JSON
+      type: file
+      source: validation/validate-dock-json-body.sh
+      hint: "The field jsonBody belongs to the event, next to url, topic and partition."
+    - name: dock-workflow-ship
+      description: A message on the topic creates a dock- Workflow whose parameter ship holds the ship from the message, and the Workflow succeeds
+      type: file
+      source: validation/validate-dock-workflow-ship.sh
+      hint: "The Sensor is correct. After the change the controller replaces the EventSource pod, so wait for it before you produce a message."
+
+teardown:
+  keepCluster: false

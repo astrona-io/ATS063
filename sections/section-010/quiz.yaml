@@ -633,3 +633,223 @@ questions:
       explanation: "Resources do not cause silence without a restart or an event."
     correct_option: b
     explanation: "The controller does not check that the event named by a dependency exists, so a wrong name is not an error."
+  - id: ats063-010-q26
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Place Kafka and AMQP among the EventSource types"
+    source_readings:
+    - sections/section-010/module-05/course-01-kafka-and-amqp-compared.md
+    prompt: "Does a Kafka EventSource need a Service so that the broker can reach it?"
+    options:
+    - id: a
+      text: "Yes, because the broker pushes messages to the pod."
+      explanation: "The pod opens the connection to the broker and pulls the messages."
+    - id: b
+      text: "No, because the pod connects out to the broker."
+      explanation: "Correct. Subscription types need no Service."
+    - id: c
+      text: "Yes, but only on port 9092."
+      explanation: "Port 9092 is the port of the broker, not of the EventSource."
+    - id: d
+      text: "Only when replicas is greater than one."
+      explanation: "The number of replicas does not decide this."
+    correct_option: b
+    explanation: "Kafka and AMQP are subscription types. Their pods connect out to the broker."
+  - id: ats063-010-q27
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the fields of a Kafka event"
+    source_readings:
+    - sections/section-010/module-05/course-02-consuming-a-kafka-topic.md
+    prompt: "Which field of a Kafka event selects the partition, and what type is its value?"
+    options:
+    - id: a
+      text: "`partition`, a string such as \"0\"."
+      explanation: "Correct. The value is written as a string."
+    - id: b
+      text: "`partition`, an integer such as 0."
+      explanation: "The field is a string in the EventSource spec."
+    - id: c
+      text: "`topic`, a list of partitions."
+      explanation: "The topic is a name, not a list of partitions."
+    - id: d
+      text: "`consumerGroup`, a string."
+      explanation: "The consumer group names a group of consumers, not a partition."
+    correct_option: a
+    explanation: "The event needs url, topic and partition, and jsonBody when the Sensor reads fields of the message."
+  - id: ats063-010-q28
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Set jsonBody for a Kafka event"
+    source_readings:
+    - sections/section-010/module-05/course-02-consuming-a-kafka-topic.md
+    prompt: "A Kafka message holds `{\"ship\":\"scout\"}`. The Sensor reads `body.ship` and gets nothing. What is the likely cause?"
+    options:
+    - id: a
+      text: "The topic name is too long."
+      explanation: "A long name does not change how the body is carried."
+    - id: b
+      text: "The event does not set `jsonBody: true`, so the body is not embedded as JSON."
+      explanation: "Correct. Without it the Sensor cannot address fields of the message."
+    - id: c
+      text: "The Sensor has no service account."
+      explanation: "That causes a permission error after the event arrives."
+    - id: d
+      text: "The EventBus has one replica."
+      explanation: "The number of replicas does not change the body."
+    correct_option: b
+    explanation: "The setting jsonBody belongs to the event next to url, topic and partition."
+  - id: ats063-010-q29
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Use the consumer group"
+    source_readings:
+    - sections/section-010/module-05/course-02-consuming-a-kafka-topic.md
+    prompt: "What does `consumerGroup` decide in a Kafka event?"
+    options:
+    - id: a
+      text: "The group of Sensors that may read the event."
+      explanation: "Sensors are selected by the dependency, not by the consumer group."
+    - id: b
+      text: "The group name under which the pod records how far it has read the topic."
+      explanation: "Correct. The broker tracks the position for that group."
+    - id: c
+      text: "The namespace of the broker."
+      explanation: "The url names the broker."
+    - id: d
+      text: "The number of partitions."
+      explanation: "Partitions are set on the topic."
+    correct_option: b
+    explanation: "The consumer group is a Kafka concept that the EventSource passes to the client."
+  - id: ats063-010-q30
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the fields of an AMQP event"
+    source_readings:
+    - sections/section-010/module-05/course-03-consuming-from-rabbitmq-over-amqp.md
+    prompt: "Which fields identify where an AMQP event listens?"
+    options:
+    - id: a
+      text: "`url`, `exchangeName`, `exchangeType` and `routingKey`."
+      explanation: "Correct. The pod binds a queue to the exchange with the routing key."
+    - id: b
+      text: "`topic` and `partition`."
+      explanation: "Those belong to a Kafka event."
+    - id: c
+      text: "`subject` and `queue`."
+      explanation: "Those names belong to NATS."
+    - id: d
+      text: "`endpoint` and `method`."
+      explanation: "Those belong to a webhook event."
+    correct_option: a
+    explanation: "An AMQP event also takes auth with the user name and the password as Secret key references."
+  - id: ats063-010-q31
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Give the credentials of the broker"
+    source_readings:
+    - sections/section-010/module-05/course-03-consuming-from-rabbitmq-over-amqp.md
+    prompt: "How does an AMQP event receive the user name and the password of the broker?"
+    options:
+    - id: a
+      text: "Inside the url as plain text only."
+      explanation: "The url does not carry credentials in the way the course sets them."
+    - id: b
+      text: "Through `auth`, with references to keys of a Secret."
+      explanation: "Correct. The secret stays out of the EventSource."
+    - id: c
+      text: "Through a ConfigMap named after the exchange."
+      explanation: "The credentials are Secret keys."
+    - id: d
+      text: "They are read from the EventBus."
+      explanation: "The bus does not hold broker credentials."
+    correct_option: b
+    explanation: "The auth section names a Secret and a key for each of the user name and the password."
+  - id: ats063-010-q32
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Check a publish with the routed field"
+    source_readings:
+    - sections/section-010/module-05/course-03-consuming-from-rabbitmq-over-amqp.md
+    prompt: "A publish through the RabbitMQ management API returns `routed: false`. What does it mean?"
+    options:
+    - id: a
+      text: "The message reached a queue and was consumed."
+      explanation: "That would be routed true."
+    - id: b
+      text: "No queue received the message, so no EventSource is bound to the exchange and routing key."
+      explanation: "Correct. The exchange accepted it but had no matching binding."
+    - id: c
+      text: "The broker is down."
+      explanation: "A down broker gives a connection error, not a reply."
+    - id: d
+      text: "The Sensor rejected the message."
+      explanation: "The Sensor is not involved at the broker."
+    correct_option: b
+    explanation: "The EventSource creates its queue and binding when its pod connects, so check the pod first."
+  - id: ats063-010-q33
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Find a broker that is down"
+    source_readings:
+    - sections/section-010/module-05/course-04-broker-failures-and-signs-in-the-log.md
+    prompt: "The broker is scaled to zero. What does the EventSource do?"
+    options:
+    - id: a
+      text: "It stops and is deleted by the controller."
+      explanation: "The controller does not delete the EventSource."
+    - id: b
+      text: "It keeps running, logs connection errors and retries according to its backoff."
+      explanation: "Correct. After the broker returns, the pod connects again."
+    - id: c
+      text: "It switches to the EventBus as the source."
+      explanation: "The bus is the target of events, not a source."
+    - id: d
+      text: "It publishes empty events."
+      explanation: "No events are created without messages."
+    correct_option: b
+    explanation: "The log of the EventSource pod shows the failed connection. The status of the EventSource does not always change."
+  - id: ats063-010-q34
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read a wrong broker address"
+    source_readings:
+    - sections/section-010/module-05/course-04-broker-failures-and-signs-in-the-log.md
+    prompt: "The log of a Kafka EventSource shows a connection error for `kafka.starfleet.svc:9093`, and the Service exposes 9092. What do you change?"
+    options:
+    - id: a
+      text: "The port of the Service, in the Service."
+      explanation: "The EventSource is the part that is wrong. Clients use the port that the broker advertises."
+    - id: b
+      text: "The `url` of the event to `kafka.starfleet.svc:9092`."
+      explanation: "Correct. The url must name the port that the broker exposes."
+    - id: c
+      text: "The EventBus."
+      explanation: "The bus is not in this connection."
+    - id: d
+      text: "The service account of the Sensor."
+      explanation: "The Sensor does not connect to the broker."
+    correct_option: b
+    explanation: "Compare the url with the Service and read the log of the pod."
+  - id: ats063-010-q35
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Use the active-passive model"
+    source_readings:
+    - sections/section-010/module-05/course-01-kafka-and-amqp-compared.md
+    prompt: "A Kafka EventSource runs with `replicas: 2`. How do the pods behave?"
+    options:
+    - id: a
+      text: "Both pods consume and publish every message."
+      explanation: "The controller avoids duplicate consumption for subscription types."
+    - id: b
+      text: "One pod is active and the other waits to take over."
+      explanation: "Correct. Subscription types are active-passive."
+    - id: c
+      text: "The pods split the partitions between them automatically."
+      explanation: "The course does not set this up. One active pod serves."
+    - id: d
+      text: "The second pod is refused."
+      explanation: "Replicas are allowed for every type."
+    correct_option: b
+    explanation: "The elected pod serves, and the standby pod takes over when it stops."
