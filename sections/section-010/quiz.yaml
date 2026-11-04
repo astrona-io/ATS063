@@ -4,7 +4,7 @@ kind: question_bank
 id: ats063-010
 course_id: ATS063
 exam_code: CAPA
-status: draft
+status: alpha
 provenance: Original practice material written for this course; not official exam questions.
 scope:
   type: section
