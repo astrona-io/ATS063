@@ -174,7 +174,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 30m
         topic: sensors
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [argo-events, sensor, trigger, conditions, parameters, workflow]
         learning_goals:
           - Run a trigger on either of two dependencies with a condition
@@ -217,7 +217,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 35m
         topic: nats-eventsource
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [argo-events, eventsource, nats, jsonbody]
         learning_goals:
           - Find why a NATS EventSource receives no messages and correct the subject
@@ -258,7 +258,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 30m
         topic: kafka-eventsource
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [argo-events, eventsource, kafka, jsonbody]
         learning_goals:
           - Find why a Kafka EventSource receives no messages and correct the port and the topic
@@ -380,7 +380,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 30m
         topic: sensor-evaluation
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [argo-events, sensor, filters, trigger-conditions, transform]
         learning_goals:
           - Repair data filters with the right path, comparator and anchored regular expressions
@@ -423,7 +423,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 35m
         topic: sensor-triggers
-        task_kind: troubleshoot
+        task_kind: troubleshooting
         tags: [argo-events, sensor, trigger, retrystrategy, dlqtrigger, atleastonce]
         learning_goals:
           - Find why an HTTP trigger loses messages without reporting an error
@@ -464,7 +464,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 35m
         topic: high-availability
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [argo-events, controller, high-availability, leader-election, resources]
         learning_goals:
           - Find why a replicated calendar EventSource has no leader and publishes nothing
@@ -507,7 +507,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 35m
         topic: troubleshooting
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [argo-events, troubleshooting, rbac, logs, eventbus]
         learning_goals:
           - Find a missing EventBus from the status of an EventSource
@@ -550,7 +550,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 25m
         topic: prometheus-metrics
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [argo-events, metrics, prometheus, scrape]
         learning_goals:
           - Find why a scrape job has no target by reading the targets API
@@ -589,7 +589,7 @@ modules:
         difficulty: intermediate
         estimated_duration: 25m
         topic: ingress
-        task_kind: fix
+        task_kind: troubleshooting
         tags: [argo-events, webhook, ingress, networking]
         learning_goals:
           - Find the Service that the controller created for a webhook EventSource
