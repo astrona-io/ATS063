@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://astrona.io/courses/certified-argo-project-associate-capa">
+    <img src="https://astrona.io/courses/certified-argo-project-associate-capa/domains/ATS063.svg" alt="ATS063: Argo Events, part of the Certified Argo Project Associate course on Astrona" width="100%">
+  </a>
+</p>
+
 # Argo Events (ATS063)
 
 Certified Argo Project Associate (CAPA): Argo Events, worth 12% of the official curriculum. The course targets Argo Events 1.9.6 and Argo Workflows 3.7.3 on a kind cluster.
